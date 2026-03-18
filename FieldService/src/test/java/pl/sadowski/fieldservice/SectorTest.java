@@ -2,8 +2,6 @@ package pl.sadowski.fieldservice;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pl.sadowski.fieldservice.field.ElectricityBox;
-import pl.sadowski.fieldservice.field.Sector;
 
 import java.util.List;
 

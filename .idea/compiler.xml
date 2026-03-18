@@ -8,10 +8,9 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="PaymentStatusService" />
-        <module name="CustomerService" />
         <module name="BookingService" />
       </profile>
-      <profile name="Annotation profile for FieldService" enabled="true">
+      <profile name="Annotation profile for CustomerService" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -19,6 +18,7 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
         </processorPath>
         <module name="FieldService" />
+        <module name="CustomerService" />
       </profile>
     </annotationProcessing>
   </component>
