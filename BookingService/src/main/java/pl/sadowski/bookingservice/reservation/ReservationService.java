@@ -2,6 +2,7 @@ package pl.sadowski.bookingservice.reservation;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ import java.util.List;
 class ReservationService {
 
     private final ReservationRepository reservationRepository;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Transactional
     public Reservation createReservation(Long userId, String sector, Integer electricBoxNum) {
@@ -32,6 +34,8 @@ class ReservationService {
         );
 
         reservation.addAccommodation(accommodation);
+
+        kafkaTemplate.send(reservationId, accommodation);
 
         reservationRepository.save(reservation);
         return accommodation;
