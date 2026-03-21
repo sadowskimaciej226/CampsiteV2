@@ -3,7 +3,8 @@ package pl.sadowski.bookingservice.reservation;
 
 import java.time.LocalDateTime;
 
-record AccommodationDto (AccommodationType type,
+record AccommodationDto (String reservationId,
+     AccommodationType type,
      String description,
      LocalDateTime arrivedAt,
      int peopleCount,

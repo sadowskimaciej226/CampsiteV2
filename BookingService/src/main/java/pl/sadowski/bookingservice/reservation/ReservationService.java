@@ -35,7 +35,7 @@ class ReservationService {
 
         reservation.addAccommodation(accommodation);
 
-        kafkaTemplate.send(reservationId, accommodation);
+        kafkaTemplate.send("reservations", reservationId, accommodation);
 
         reservationRepository.save(reservation);
         return accommodation;
@@ -84,7 +84,5 @@ class ReservationService {
 
         return reservation.getAccommodations();
     }
-
-
 
 }
