@@ -4,8 +4,9 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import pl.sadowski.bookingservice.reservation.view.AccommodationType;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Getter
@@ -20,20 +21,20 @@ class Accommodation {
 
     private String description;
 
-    private LocalDateTime arrivedAt;
-    private LocalDateTime departedAt;
+    private Instant arrivedAt;
+    private Instant departedAt;
 
     private int peopleCount;
 
 
-    Accommodation(AccommodationType type, String description, LocalDateTime arrivedAt, int peopleCount) {
+    Accommodation(AccommodationType type, String description, Instant arrivedAt, int peopleCount) {
         this.type = type;
         this.description = description;
         this.arrivedAt = arrivedAt;
         this.peopleCount = peopleCount;
     }
 
-    public void completeDeparture(LocalDateTime when) {
+    public void completeDepartureWhen(Instant when) {
         this.departedAt = when;
     }
 

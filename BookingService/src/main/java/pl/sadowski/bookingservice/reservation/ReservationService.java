@@ -4,9 +4,13 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import pl.sadowski.bookingservice.reservation.view.AccommodationCreationDto;
+import pl.sadowski.bookingservice.reservation.view.AccommodationDepartedDto;
+import pl.sadowski.bookingservice.reservation.view.AccommodationEvent;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -16,13 +20,13 @@ class ReservationService {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Transactional
-    public Reservation createReservation(Long userId, String sector, Integer electricBoxNum) {
+    public Reservation createReservation(String userId, String sector, Integer electricBoxNum) {
         Reservation reservation = new Reservation(userId, sector, electricBoxNum);
         return reservationRepository.save(reservation);
     }
 
     @Transactional
-    public Accommodation addAccommodation(String reservationId, AccommodationDto dto) {
+    public Accommodation addAccommodation(String reservationId, AccommodationCreationDto dto) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found: " + reservationId));
 
@@ -34,15 +38,41 @@ class ReservationService {
         );
 
         reservation.addAccommodation(accommodation);
+        AccommodationEvent accommodationCreatedEvent = EventBuilder.buildAccommodationEvent(reservationId, dto, reservation);
 
-        kafkaTemplate.send("reservations", reservationId, accommodation);
-
+        kafkaTemplate.send("reservations", reservationId, accommodationCreatedEvent);
         reservationRepository.save(reservation);
         return accommodation;
     }
 
     @Transactional
-    public List<Accommodation> addAccommodations(String reservationId, List<AccommodationDto> dtos) {
+    public Accommodation finishAccommodation(AccommodationDepartedDto depart) {
+        Reservation reservation = reservationRepository.findById(depart.reservationId())
+                .orElseThrow(() -> new IllegalArgumentException("Reservation not found: " + depart.reservationId()));
+
+        //It's not expected that reservation has over few accommodations, therefore n + 1 is not scary
+        Accommodation accommodation = reservation.getAccommodations().stream()
+                .filter(a -> Objects.equals(a.getId(), depart.accommodationId()))
+                .findAny().orElseThrow(RuntimeException::new);
+
+        accommodation.completeDepartureWhen(depart.departureTime());
+
+        AccommodationEvent accommodationDepartedEvent = EventBuilder
+                .buildDepartedEvent(depart.reservationId(), depart.peopleToLeave(), accommodation.getType(), depart.departureTime(), reservation);
+
+        kafkaTemplate.send("reservations", depart.reservationId(), accommodationDepartedEvent);
+
+        int peopleLeft = accommodation.getPeopleCount() - depart.peopleToLeave();
+        if (peopleLeft < 0) {
+            throw new IllegalArgumentException("peopleToLeave exceeds current peopleCount");
+        }
+        AccommodationCreationDto accommodationCreationDto =
+                new AccommodationCreationDto(depart.reservationId(), accommodation.getType(), depart.newAccommodationDescription(), Instant.now(), peopleLeft, reservation.getUserId());
+        return addAccommodation(depart.reservationId(), accommodationCreationDto);
+    }
+
+    @Transactional
+    public List<Accommodation> addAccommodations(String reservationId, List<AccommodationCreationDto> dtos) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found: " + reservationId));
 
@@ -62,7 +92,7 @@ class ReservationService {
     }
 
     @Transactional
-    public void completeDeparture(String reservationId, LocalDateTime departedAt) {
+    public void completeDeparture(String reservationId, Instant departedAt) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found: " + reservationId));
 
