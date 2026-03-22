@@ -1,9 +1,11 @@
-package pl.sadowski.fieldservice;
+package pl.sadowski.fieldservice.field;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import pl.sadowski.fieldservice.field.view.DomainEvents;
+import pl.sadowski.fieldservice.field.view.SectorTag;
 
 @Service
 @Transactional

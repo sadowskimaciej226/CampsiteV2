@@ -1,4 +1,4 @@
-package pl.sadowski.fieldservice;
+package pl.sadowski.fieldservice.field.view;
 
 public class SectorNotFoundByTag extends RuntimeException {
     public SectorNotFoundByTag(String message) {

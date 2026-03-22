@@ -1,4 +1,4 @@
-package pl.sadowski.fieldservice;
+package pl.sadowski.fieldservice.field.view;
 
 import org.antlr.v4.runtime.misc.NotNull;
 

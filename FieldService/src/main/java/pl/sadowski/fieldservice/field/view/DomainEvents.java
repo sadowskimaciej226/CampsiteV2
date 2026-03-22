@@ -1,4 +1,4 @@
-package pl.sadowski.fieldservice;
+package pl.sadowski.fieldservice.field.view;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,8 +1,10 @@
-package pl.sadowski.fieldservice;
+package pl.sadowski.fieldservice.field;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import pl.sadowski.fieldservice.field.view.ElectricityBoxOverloaded;
+import pl.sadowski.fieldservice.field.view.SectorOverloaded;
 
 @Component
 @Log4j2

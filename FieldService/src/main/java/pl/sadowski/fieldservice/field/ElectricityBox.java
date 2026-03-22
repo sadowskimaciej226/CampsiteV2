@@ -1,8 +1,10 @@
-package pl.sadowski.fieldservice;
+package pl.sadowski.fieldservice.field;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import pl.sadowski.fieldservice.field.view.DomainEvents;
+import pl.sadowski.fieldservice.field.view.ElectricityBoxOverloaded;
 
 
 @Entity

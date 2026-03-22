@@ -1,6 +1,6 @@
-package pl.sadowski.fieldservice;
+package pl.sadowski.fieldservice.field.view;
 
-record AccommodationEvent (
+public record AccommodationEvent (
         String clientId,
         String sectorTag,
         int electricityBox,

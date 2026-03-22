@@ -1,9 +1,11 @@
-package pl.sadowski.fieldservice;
+package pl.sadowski.fieldservice.field;
 
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import pl.sadowski.fieldservice.field.view.AssignPeopleRequest;
+import pl.sadowski.fieldservice.field.view.SectorTag;
 
 @RestController
 @RequestMapping("/sectors")
