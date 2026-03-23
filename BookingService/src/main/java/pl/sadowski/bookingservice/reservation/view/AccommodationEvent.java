@@ -2,7 +2,8 @@ package pl.sadowski.bookingservice.reservation.view;
 
 import java.time.Instant;
 
-public record AccommodationEvent(String reservationId,
+public record AccommodationEvent(AccommodationEventType eventType,
+                          String reservationId,
                           int amountOfPeople,
                           String sector,
                           String accommodationType,

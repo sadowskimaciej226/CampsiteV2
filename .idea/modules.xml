@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/CampsiteV2.iml" filepath="$PROJECT_DIR$/CampsiteV2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/FieldService/FieldService.iml" filepath="$PROJECT_DIR$/FieldService/FieldService.iml" />
     </modules>
   </component>
 </project>

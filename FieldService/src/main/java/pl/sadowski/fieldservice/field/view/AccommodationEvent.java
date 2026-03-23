@@ -1,9 +1,13 @@
 package pl.sadowski.fieldservice.field.view;
 
-public record AccommodationEvent (
-        String clientId,
-        String sectorTag,
-        int electricityBox,
-        int amountOfPeople
-){
+import java.time.Instant;
+
+public record AccommodationEvent(AccommodationEventType eventType,
+                                 String reservationId,
+                                 int amountOfPeople,
+                                 String sector,
+                                 String accommodationType,
+                                 Instant arrivedAt,
+                                 Instant departedAt,
+                                 int electricityBoxNumber) {
 }

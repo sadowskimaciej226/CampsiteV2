@@ -17,6 +17,7 @@ class Sector {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Enumerated(EnumType.STRING)
     private SectorTag sectorTag;
     private int maxPeople;
     private int occupiedPeople;
