@@ -21,8 +21,8 @@ jobs:
       - name: Build image
         run: |
           docker build \
-          -t ghcr.io/sadowskimaciej226/campsitev2/BookingService:latest \
-          ./services/booking-service
+          -t ghcr.io/sadowskimaciej226/campsitev2/booking-service:latest \
+          ./services/BookingService
 
       - name: Push image
         run: docker push ghcr.io/sadowskimaciej226/campsitev2/booking-service:latest
