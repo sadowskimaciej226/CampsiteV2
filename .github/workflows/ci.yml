@@ -21,8 +21,30 @@ jobs:
       - name: Build image
         run: |
           docker build \
-          -t ghcr.io/sadowskimaciej226/campsitev2/booking-service:latest \
+          -t ghcr.io/sadowskimaciej226/campsitev2/booking-service:${{ github.sha }} \
           ./BookingService
 
       - name: Push image
-        run: docker push ghcr.io/sadowskimaciej226/campsitev2/booking-service:latest
+        run: docker push ghcr.io/sadowskimaciej226/campsitev2/booking-service:${{ github.sha }}
+
+  field-service:
+    runs-on: ubuntu-latest
+
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to GHCR
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u sadowskimaciej226 --password-stdin
+
+      - name: Build image
+        run: |
+          docker build \
+          -t ghcr.io/sadowskimaciej226/campsitev2/field-service:${{ github.sha }} \
+          ./FieldService
+
+      - name: Push image
+        run: docker push ghcr.io/sadowskimaciej226/campsitev2/field-service:${{ github.sha }}
