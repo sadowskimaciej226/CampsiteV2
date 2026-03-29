@@ -4,12 +4,12 @@ spring:
   kafka:
     admin:
       auto-create: true
-    bootstrap-servers: kafka:29092
+    bootstrap-servers: localhost:9092
     producer:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
   datasource:
-    url: jdbc:postgresql://postgres:5432/mydb
+    url: jdbc:postgresql://localhost:5432/mydb
     username: user
     password: password
   jpa:
