@@ -27,7 +27,7 @@ jobs:
       - name: Push image
         run: docker push ghcr.io/sadowskimaciej226/campsitev2/booking-service:${{ github.sha }}
 
-  field-service:
+  build-field:
     runs-on: ubuntu-latest
 
     permissions:
