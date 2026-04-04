@@ -2,6 +2,7 @@ package pl.sadowski.bookingservice.reservation;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import pl.sadowski.bookingservice.reservation.view.AccommodationCreationDto;
@@ -14,6 +15,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 class ReservationService {
 
     private final ReservationRepository reservationRepository;
@@ -21,6 +23,7 @@ class ReservationService {
 
     @Transactional
     public Reservation createReservation(String userId, String sector, Integer electricBoxNum) {
+        log.debug("Start to create reservation");
         Reservation reservation = new Reservation(userId, sector, electricBoxNum);
         return reservationRepository.save(reservation);
     }
