@@ -39,4 +39,4 @@ jobs:
 
       - name: Update kuberenetes manifest
         run: |
-          sed -i "s|image: .*${{ matrix.image }}:.*|image: ghcr.io/sadowskimaciej226/campsitev2/${{ matrix.image }}:${{ github.sha }}|"
+          sed -i "s|image: .*${{ matrix.image }}:.*|image: ghcr.io/sadowskimaciej226/campsitev2/${{ matrix.image }}:${{ github.sha }}|" k8s/${{ matrix.path }}/deployment.yaml
