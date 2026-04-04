@@ -5,8 +5,16 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-booking:
+  build:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - service: BookingService
+            image: booking-service
+          - service: FieldService
+            image: field-service
 
     permissions:
       packages: write
@@ -21,30 +29,8 @@ jobs:
       - name: Build image
         run: |
           docker build \
-          -t ghcr.io/sadowskimaciej226/campsitev2/booking-service:${{ github.sha }} \
-          ./BookingService
+          -t ghcr.io/sadowskimaciej226/campsitev2/${{ matrix.image }}:${{ github.sha }} \
+          ./${{ matrix.service }}
 
       - name: Push image
-        run: docker push ghcr.io/sadowskimaciej226/campsitev2/booking-service:${{ github.sha }}
-
-  build-field:
-    runs-on: ubuntu-latest
-
-    permissions:
-      packages: write
-      contents: read
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Login to GHCR
-        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u sadowskimaciej226 --password-stdin
-
-      - name: Build image
-        run: |
-          docker build \
-          -t ghcr.io/sadowskimaciej226/campsitev2/field-service:${{ github.sha }} \
-          ./FieldService
-
-      - name: Push image
-        run: docker push ghcr.io/sadowskimaciej226/campsitev2/field-service:${{ github.sha }}
+        run: docker push ghcr.io/sadowskimaciej226/campsitev2/${{ matrix.image }}:${{ github.sha }}
