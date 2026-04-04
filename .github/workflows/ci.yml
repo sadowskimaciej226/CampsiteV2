@@ -37,6 +37,16 @@ jobs:
       - name: Push image
         run: docker push ghcr.io/sadowskimaciej226/campsitev2/${{ matrix.image }}:${{ github.sha }}
 
-      - name: Update kuberenetes manifest
+      - name: Update kubernetes manifest
+        if: "!contains(github.event.head_commit.message, 'ci: update image')"
         run: |
           sed -i "s|PLACEHOLDER|${{ github.sha }}|" k8s/${{ matrix.path }}/deployment.yaml
+
+      - name: Commit changes
+        if: "!contains(github.event.head_commit.message, 'ci: update image')"
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add k8s/
+          git commit -m "ci: update image to ${{ github.sha }}" || echo "No changes"
+          git push
