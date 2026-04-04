@@ -23,7 +23,7 @@ class ReservationService {
 
     @Transactional
     public Reservation createReservation(String userId, String sector, Integer electricBoxNum) {
-        log.debug("Start to create reservation for sector {}", sector);
+        log.debug("Start to create reservation for sector: {}", sector);
         Reservation reservation = new Reservation(userId, sector, electricBoxNum);
         return reservationRepository.save(reservation);
     }
