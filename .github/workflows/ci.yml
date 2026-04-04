@@ -13,8 +13,10 @@ jobs:
         include:
           - service: BookingService
             image: booking-service
+            path: booking-service
           - service: FieldService
             image: field-service
+            path: field-service
 
     permissions:
       packages: write
@@ -34,3 +36,7 @@ jobs:
 
       - name: Push image
         run: docker push ghcr.io/sadowskimaciej226/campsitev2/${{ matrix.image }}:${{ github.sha }}
+
+      - name: Update kuberenetes manifest
+        run: |
+          sed -i "s|image: .*${{ matrix.image }}:.*|image: ghcr.io/sadowskimaciej226/campsitev2/${{ matrix.image }}:${{ github.sha }}|"
