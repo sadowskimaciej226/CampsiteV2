@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import pl.sadowski.bookingservice.reservation.exceptions.ReservationNotFoundException;
 import pl.sadowski.bookingservice.reservation.view.AccommodationCreationDto;
 import pl.sadowski.bookingservice.reservation.view.AccommodationDepartedDto;
 import pl.sadowski.bookingservice.reservation.view.AccommodationEvent;
@@ -22,28 +23,27 @@ class ReservationService {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Transactional
-    public Reservation createReservation(String userId, String sector, Integer electricBoxNum) {
+    public Reservation createReservation(String userId, Sector sector, Integer electricBoxNum) {
         log.debug("Start to create reservation for sector: {}", sector);
         Reservation reservation = new Reservation(userId, sector, electricBoxNum);
         return reservationRepository.save(reservation);
     }
 
     @Transactional
-    public Accommodation addAccommodation(String reservationId, AccommodationCreationDto dto) {
-        Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new IllegalArgumentException("Reservation not found: " + reservationId));
-
+    public Accommodation addAccommodation(AccommodationCreationDto dto) {
+        Reservation reservation = reservationRepository.findById(dto.reservationId())
+                .orElseThrow(() -> new ReservationNotFoundException("Reservation not found: " + dto.reservationId()));
         Accommodation accommodation = new Accommodation(
                 dto.type(),
                 dto.description(),
                 dto.arrivedAt(),
                 dto.peopleCount()
         );
-
         reservation.addAccommodation(accommodation);
-        AccommodationEvent accommodationCreatedEvent = EventBuilder.buildAccommodationEvent(reservationId, dto, reservation);
+        AccommodationEvent accommodationCreatedEvent
+                = EventBuilder.buildAccommodationEvent(dto.reservationId(), dto, reservation);
 
-        kafkaTemplate.send("reservations", reservationId, accommodationCreatedEvent);
+        kafkaTemplate.send("reservations", dto.reservationId(), accommodationCreatedEvent);
         reservationRepository.save(reservation);
         return accommodation;
     }
@@ -51,7 +51,7 @@ class ReservationService {
     @Transactional
     public Accommodation finishAccommodation(AccommodationDepartedDto depart) {
         Reservation reservation = reservationRepository.findById(depart.reservationId())
-                .orElseThrow(() -> new IllegalArgumentException("Reservation not found: " + depart.reservationId()));
+                .orElseThrow(() -> new ReservationNotFoundException("Reservation not found: " + depart.reservationId()));
 
         //It's not expected that reservation has over few accommodations, therefore n + 1 is not scary
         Accommodation accommodation = reservation.getAccommodations().stream()
@@ -61,17 +61,22 @@ class ReservationService {
         accommodation.completeDepartureWhen(depart.departureTime());
 
         AccommodationEvent accommodationDepartedEvent = EventBuilder
-                .buildDepartedEvent(depart.reservationId(), depart.peopleToLeave(), accommodation.getType(), depart.departureTime(), reservation);
+                .buildDepartedEvent(depart.reservationId(), depart.peopleToLeave(), accommodation.getType(),
+                        depart.departureTime(), reservation);
 
         kafkaTemplate.send("reservations", depart.reservationId(), accommodationDepartedEvent);
 
-        int peopleLeft = accommodation.getPeopleCount() - depart.peopleToLeave();
+        int peopleLeft = accommodation.getPeopleLeft(depart.peopleToLeave());
         if (peopleLeft < 0) {
             throw new IllegalArgumentException("peopleToLeave exceeds current peopleCount");
         }
         AccommodationCreationDto accommodationCreationDto =
-                new AccommodationCreationDto(depart.reservationId(), accommodation.getType(), depart.newAccommodationDescription(), Instant.now(), peopleLeft, reservation.getUserId());
-        return addAccommodation(depart.reservationId(), accommodationCreationDto);
+                new AccommodationCreationDto(depart.reservationId(),
+                        accommodation.getType(), depart.newAccommodationDescription(),
+                        Instant.now(),
+                        peopleLeft,
+                        reservation.getUserId());
+        return addAccommodation(accommodationCreationDto);
     }
 
     @Transactional

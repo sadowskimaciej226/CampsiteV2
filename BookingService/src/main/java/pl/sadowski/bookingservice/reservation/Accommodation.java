@@ -34,8 +34,12 @@ class Accommodation {
         this.peopleCount = peopleCount;
     }
 
-    public void completeDepartureWhen(Instant when) {
+    void completeDepartureWhen(Instant when) {
         this.departedAt = when;
+    }
+
+    int getPeopleLeft(int peopleToLeave) {
+        return this.peopleCount - peopleToLeave;
     }
 
 }
