@@ -18,16 +18,16 @@ class ReservationController {
     @PostMapping()
     public ResponseEntity<ReservationResponseDto> createReservation(@RequestBody ReservationRequestDto reservation) {
         Reservation createdReservation =
-                reservationService.createReservation(reservation.userId(), reservation.sector(), reservation.electricBoxNum());
+                reservationService.createReservation(reservation.userId(), Sector.valueOf(reservation.sector()), reservation.electricBoxNum());
         return ResponseEntity.ok(new ReservationResponseDto(createdReservation.getId(),
                 createdReservation.getUserId(),
-                createdReservation.getSector(),
+                createdReservation.getSector().toString(),
                 createdReservation.getElectricBoxNum()));
     }
 
     @PostMapping("/accommodation")
     public ResponseEntity<?> createAccommodation(@RequestBody AccommodationCreationDto accommodation) {
-        reservationService.addAccommodation(accommodation.reservationId(), accommodation);
+        reservationService.addAccommodation(accommodation);
         return ResponseEntity.ok().build();
     }
 

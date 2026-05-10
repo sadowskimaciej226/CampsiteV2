@@ -1,22 +1,19 @@
 package pl.sadowski.bookingservice.reservation;
 
 import lombok.experimental.UtilityClass;
-import pl.sadowski.bookingservice.reservation.view.AccommodationCreationDto;
-import pl.sadowski.bookingservice.reservation.view.AccommodationEvent;
-import pl.sadowski.bookingservice.reservation.view.AccommodationEventType;
-import pl.sadowski.bookingservice.reservation.view.AccommodationType;
+import pl.sadowski.bookingservice.reservation.view.*;
 
 import java.time.Instant;
 
 @UtilityClass
 class EventBuilder {
 
-    AccommodationEvent buildAccommodationEvent(String reservationId, AccommodationCreationDto dto, Reservation reservation) {
+    AccommodationEvent buildAccommodationEvent(AccommodationCreationDto dto, Reservation reservation) {
         return new AccommodationEvent(
                 AccommodationEventType.ARRIVAL,
-                reservationId,
+                dto.reservationId(),
                 dto.peopleCount(),
-                reservation.getSector(),
+                reservation.getSector().toString(),
                 dto.type().toString(),
                 dto.arrivedAt(),
                 null,
@@ -24,15 +21,15 @@ class EventBuilder {
         );
     }
 
-    public static AccommodationEvent buildDepartedEvent(String reservationId, int peopleLeft, AccommodationType type, Instant departedTime, Reservation reservation) {
+    public static AccommodationEvent buildDepartedEvent(AccommodationDepartedDto depart, AccommodationType type, Reservation reservation) {
         return new AccommodationEvent(
                 AccommodationEventType.DEPARTURE,
-                reservationId,
-                peopleLeft,
-                reservation.getSector(),
+                depart.reservationId(),
+                depart.peopleToLeave(),
+                reservation.getSector().toString(),
                 type.toString(),
                 null,
-                departedTime,
+                depart.departureTime(),
                 reservation.getElectricBoxNum()
         );
     }

@@ -26,16 +26,33 @@ class Accommodation {
 
     private int peopleCount;
 
+    @ManyToOne
+    @JoinColumn(name = "reservation_id")
+    private Reservation reservation;
 
-    Accommodation(AccommodationType type, String description, Instant arrivedAt, int peopleCount) {
+
+    Accommodation(AccommodationType type, String description, Instant arrivedAt, int peopleCount, Reservation reservation) {
         this.type = type;
         this.description = description;
         this.arrivedAt = arrivedAt;
         this.peopleCount = peopleCount;
+        this.reservation = reservation;
     }
 
-    public void completeDepartureWhen(Instant when) {
+    void departPeople(int count) {
+        if (count < 0) {
+            throw new IllegalArgumentException("Cannot depart negative people");
+        }
+        if (count > peopleCount) {
+            throw new NoOneOneToDepartException("Too many people leaving");
+        }
+        this.peopleCount -= count;
+    }
+
+    void markDepartedAt(Instant when) {
+        if (this.departedAt != null) {
+            throw new IllegalArgumentException("Already departed");
+        }
         this.departedAt = when;
     }
-
 }
