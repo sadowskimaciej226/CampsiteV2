@@ -50,37 +50,47 @@ class ReservationService {
     public Accommodation finishAccommodation(AccommodationDepartedDto depart) {
         Reservation reservation = reservationRepository.findById(depart.reservationId())
                 .orElseThrow(() -> new ReservationNotFoundException("Reservation not found: " + depart.reservationId()));
-        Accommodation accommodation = accommodationRepository.findById(depart.accommodationId())
+        Accommodation accommodation =
+                accommodationRepository.findAccommodationByReservationIdAndId(depart.accommodationId(), depart.reservationId())
                 .orElseThrow(() -> new AccommodationNotFoundException("Accommodation not found: " + depart.accommodationId()));
 
-        accommodation.completeDepartureWhen(depart.departureTime());
+        Accommodation nextAccommodation = reservation.finishAccommodation(accommodation, depart.departureTime(),
+                depart.peopleToLeave(), accommodation.getType(), depart.newAccommodationDescription());
+        accommodationRepository.save(nextAccommodation);
+
+        sendAccommodationCreatedEvent(depart, accommodation, reservation);
 
         AccommodationEvent accommodationDepartedEvent = EventBuilder
                 .buildDepartedEvent(depart, accommodation.getType(), reservation);
-
         kafkaTemplate.send(RESERVATIONS_TOPIC, depart.reservationId(), accommodationDepartedEvent);
 
-        int peopleLeft = accommodation.getPeopleLeft(depart.peopleToLeave());
-        if (peopleLeft < 0) {
-            throw new NoOneOneToDepartException("peopleToLeave exceeds current peopleCount");
-        }
+        return nextAccommodation;
+    }
+
+    private void sendAccommodationCreatedEvent(AccommodationDepartedDto depart, Accommodation accommodation, Reservation reservation) {
         AccommodationCreationDto accommodationCreationDto =
                 new AccommodationCreationDto(depart.reservationId(),
                         accommodation.getType(), depart.newAccommodationDescription(),
                         Instant.now(),
-                        peopleLeft,
+                        depart.peopleToLeave(),
                         reservation.getUserId());
-        return createAccommodation(accommodationCreationDto, reservation);
+
+        AccommodationEvent accommodationCreatedEvent
+                = EventBuilder.buildAccommodationEvent(accommodationCreationDto, reservation);
+
+        kafkaTemplate.send(RESERVATIONS_TOPIC, accommodationCreationDto.reservationId(), accommodationCreatedEvent);
     }
+
 
     private Accommodation createAccommodation(AccommodationCreationDto dto, Reservation reservation) {
         Accommodation accommodation = new Accommodation(
                 dto.type(),
                 dto.description(),
                 dto.arrivedAt(),
-                dto.peopleCount()
+                dto.peopleCount(),
+                reservation
         );
-        reservation.addAccommodation(accommodation);
+
         AccommodationEvent accommodationCreatedEvent
                 = EventBuilder.buildAccommodationEvent(dto, reservation);
 
@@ -93,7 +103,7 @@ class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found: " + reservationId));
 
-        reservation.completeDeparture(departedAt);
+//        reservation.completeDeparture(departedAt);
         reservationRepository.save(reservation);
     }
 

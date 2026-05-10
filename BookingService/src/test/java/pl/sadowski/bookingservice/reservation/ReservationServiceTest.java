@@ -97,7 +97,8 @@ class ReservationServiceTest {
         Reservation reservation = new Reservation("userId", Sector.A, 1);
         //when
         when(reservationRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(reservation));
-        when(accommodationRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.empty());
+        when(accommodationRepository.findAccommodationByReservationIdAndId(ArgumentMatchers.any(), ArgumentMatchers.any()))
+                .thenReturn(Optional.empty());
 
         //then
         assertThrows(AccommodationNotFoundException.class,
@@ -111,9 +112,10 @@ class ReservationServiceTest {
                 = new AccommodationDepartedDto("reservationId", "accommodationId", Instant.now(),
                 2, "clientId", null);
         Reservation reservation = new Reservation("userId", Sector.A, 1);
-        Accommodation accommodation = new Accommodation(AccommodationType.CAR, "description", Instant.now(), 1);
+        Accommodation accommodation = new Accommodation(AccommodationType.CAR, "description", Instant.now(), 1, reservation);
         //when
-        when(accommodationRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(accommodation));
+        when(accommodationRepository.findAccommodationByReservationIdAndId(ArgumentMatchers.any(), ArgumentMatchers.any()))
+                .thenReturn(Optional.of(accommodation));
         when(reservationRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(reservation));
         //then
         assertThrows(NoOneOneToDepartException.class,
@@ -127,9 +129,10 @@ class ReservationServiceTest {
                 = new AccommodationDepartedDto("reservationId", "accommodationId", Instant.now(),
                 1, "clientId", null);
         Reservation reservation = new Reservation("userId", Sector.A, 1);
-        Accommodation accommodation = new Accommodation(AccommodationType.CAR, "description", Instant.now(), 1);
+        Accommodation accommodation = new Accommodation(AccommodationType.CAR, "description", Instant.now(), 1, reservation);
         //when
-        when(accommodationRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(accommodation));
+        when(accommodationRepository.findAccommodationByReservationIdAndId(ArgumentMatchers.any(), ArgumentMatchers.any()))
+                .thenReturn(Optional.of(accommodation));
         when(reservationRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(reservation));
 
         Accommodation createdAccommodation = reservationService.finishAccommodation(accommodationDepartedDto);

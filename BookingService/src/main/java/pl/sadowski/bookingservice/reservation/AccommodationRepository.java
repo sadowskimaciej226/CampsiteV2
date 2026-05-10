@@ -4,5 +4,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
 
-public interface AccommodationRepository extends CrudRepository<Accommodation, String> {
+interface AccommodationRepository extends CrudRepository<Accommodation, String> {
+
+    Optional<Accommodation> findAccommodationByReservationIdAndId(String reservationId, String id);
 }
