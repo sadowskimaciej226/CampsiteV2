@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: booking-service
-          image: ghcr.io/sadowskimaciej226/campsitev2/booking-service:9939549447ca13c67ec86bf30fbbb185274d20a9
+          image: ghcr.io/sadowskimaciej226/campsitev2/booking-service:2cc861af071983e60a9c47d62e8004bfa4e3c46f
           ports:
             - containerPort: 8080
