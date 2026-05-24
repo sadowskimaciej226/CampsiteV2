@@ -1,9 +1,9 @@
-package pl.sadowski.fieldservice.field.view;
+package pl.sadowski.fieldservice.field;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DomainEvents {
+class DomainEvents {
 
     private static final ThreadLocal<List<Object>> CURRENT_EVENTS =
             ThreadLocal.withInitial(ArrayList::new);

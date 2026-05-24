@@ -2,7 +2,6 @@ package pl.sadowski.fieldservice.field;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pl.sadowski.fieldservice.field.view.DomainEvents;
 import pl.sadowski.fieldservice.field.view.SectorTag;
 
 import java.util.List;

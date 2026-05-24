@@ -31,7 +31,7 @@ class ReservationController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/accommodation/departure")
+    @PostMapping("/accommodation/change")
     public ResponseEntity<?> depart(@RequestBody AccommodationDepartedDto accommodationDepartedDto) {
         reservationService.finishAccommodation(accommodationDepartedDto);
         return ResponseEntity.ok().build();

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import pl.sadowski.bookingservice.reservation.exceptions.NoOneOneToDepartException;
 import pl.sadowski.bookingservice.reservation.view.AccommodationType;
 
 import java.time.Instant;

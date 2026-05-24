@@ -36,7 +36,7 @@ class ReservationService {
         Reservation reservation = reservationRepository.findById(dto.reservationId())
                 .orElseThrow(() -> new ReservationNotFoundException("Reservation not found: " + dto.reservationId()));
         Accommodation accommodation = createAccommodation(dto, reservation);
-        reservationRepository.save(reservation);
+        accommodationRepository.save(accommodation);
         return accommodation;
     }
 
@@ -51,7 +51,7 @@ class ReservationService {
         Reservation reservation = reservationRepository.findById(depart.reservationId())
                 .orElseThrow(() -> new ReservationNotFoundException("Reservation not found: " + depart.reservationId()));
         Accommodation accommodation =
-                accommodationRepository.findAccommodationByReservationIdAndId(depart.accommodationId(), depart.reservationId())
+                accommodationRepository.findAccommodationByReservationIdAndId(depart.reservationId(), depart.accommodationId())
                 .orElseThrow(() -> new AccommodationNotFoundException("Accommodation not found: " + depart.accommodationId()));
 
         Accommodation nextAccommodation = reservation.finishAccommodation(accommodation, depart.departureTime(),
