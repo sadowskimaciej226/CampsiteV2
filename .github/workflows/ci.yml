@@ -3,11 +3,14 @@ name: Build and Push
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'booking-service/**'
+      - 'field-service/**'
+      - 'k8s/**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         include:
@@ -20,33 +23,46 @@ jobs:
 
     permissions:
       packages: write
-      contents: write
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Login to GHCR
-        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u sadowskimaciej226 --password-stdin
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: sadowskimaciej226
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build image
+      - name: Build and Push image
         run: |
           docker build \
-          -t ghcr.io/sadowskimaciej226/campsitev2/${{ matrix.image }}:${{ github.sha }} \
-          ./${{ matrix.service }}
+            -t ghcr.io/sadowskimaciej226/campsitev2/${{ matrix.image }}:${{ github.sha }} \
+            ./${{ matrix.path }}
+          
+          docker push ghcr.io/sadowskimaciej226/campsitev2/${{ matrix.image }}:${{ github.sha }}
 
-      - name: Push image
-        run: docker push ghcr.io/sadowskimaciej226/campsitev2/${{ matrix.image }}:${{ github.sha }}
+  deploy-update:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    if: "!contains(github.event.head_commit.message, 'ci: update image')"
 
-      - name: Update kubernetes manifest
-        if: "!contains(github.event.head_commit.message, 'ci: update image')"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update kubernetes manifests
         run: |
-          sed -i "s|image: ghcr.io/.*/${{ matrix.image }}:.*|image: ghcr.io/sadowskimaciej226/campsitev2/${{ matrix.image }}:${{ github.sha }}|" k8s/${{ matrix.path }}/deployment.yaml
+          sed -i "s|image: ghcr.io/.*/booking-service:.*|image: ghcr.io/sadowskimaciej226/campsitev2/booking-service:${{ github.sha }}|" k8s/booking-service/deployment.yaml
+          sed -i "s|image: ghcr.io/.*/field-service:.*|image: ghcr.io/sadowskimaciej226/campsitev2/field-service:${{ github.sha }}|" k8s/field-service/deployment.yaml
 
       - name: Commit changes
-        if: "!contains(github.event.head_commit.message, 'ci: update image')"
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add k8s/
-          git commit -m "ci: update image to ${{ github.sha }}" || echo "No changes"
-          git push
+          git commit -m "ci: update images to ${{ github.sha }}" || echo "No changes to commit"
+          for i in {1..5}; do
+            git pull --rebase origin main && git push && break || sleep 5
+          done
