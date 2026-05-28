@@ -132,7 +132,7 @@ services:
 
   payment-service:
     build:
-      context: ./PaymentStatusService
+      context: PaymentService
       dockerfile: Dockerfile
     ports:
       - "8083:8080"

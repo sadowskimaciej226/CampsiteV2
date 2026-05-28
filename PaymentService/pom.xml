@@ -11,8 +11,8 @@
     <groupId>pl.sadowski</groupId>
     <artifactId>PaymentStatusService</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>PaymentStatusService</name>
-    <description>PaymentStatusService</description>
+    <name>PaymentService</name>
+    <description>PaymentService</description>
     <url/>
     <licenses>
         <license/>
