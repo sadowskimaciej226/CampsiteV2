@@ -1,3 +1,4 @@
 .idea/
 *.iml
 sdk/src/main/java/pl/sadowski/sdk/avro/
+sdk/target
