@@ -8,6 +8,13 @@ spring:
     producer:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        enable.idempotance: true
+      acks: all
+      retries: 3
+    properties:
+      schema.registry.url: http://localhost:8081
+      specific.avro.reader: true
   datasource:
     url: jdbc:postgresql://localhost:5432/mydb
     username: user

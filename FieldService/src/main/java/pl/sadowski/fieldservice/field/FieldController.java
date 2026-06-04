@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-class FiledController {
+class FieldController {
 
     private final SectorService sectorService;
 

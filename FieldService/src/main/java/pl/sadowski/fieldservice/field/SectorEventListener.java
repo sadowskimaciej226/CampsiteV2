@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import pl.sadowski.fieldservice.field.view.AccommodationEvent;
-import pl.sadowski.fieldservice.field.view.AccommodationEventType;
 import pl.sadowski.fieldservice.field.view.SectorTag;
+import pl.sadowski.sdk.avro.AccommodationEvent;
+import pl.sadowski.sdk.avro.AccommodationEventType;
 
 @Service
 @RequiredArgsConstructor
@@ -17,10 +17,12 @@ class SectorEventListener {
 
     @KafkaListener(topics = "reservations", groupId = "sector-service")
     public void assignNewClientsToField(AccommodationEvent accommodation) {
-        if (accommodation.eventType() == AccommodationEventType.DEPARTURE) {
-            sectorService.releasePeople(SectorTag.valueOf(accommodation.sector()), accommodation.electricityBoxNumber(), accommodation.amountOfPeople());
-        } else if(accommodation.eventType() == AccommodationEventType.ARRIVAL){
-            sectorService.assignPeople(SectorTag.valueOf(accommodation.sector()), accommodation.electricityBoxNumber(), accommodation.amountOfPeople());
+        if (accommodation.getEventType() == AccommodationEventType.DEPARTURE) {
+            sectorService.releasePeople(SectorTag.valueOf(accommodation.getSector()),
+                    accommodation.getElectricityBoxNumber(), accommodation.getAmountOfPeople());
+        } else if(accommodation.getEventType() == AccommodationEventType.ARRIVAL){
+            sectorService.assignPeople(SectorTag.valueOf(accommodation.getSector()),
+                    accommodation.getElectricityBoxNumber(), accommodation.getAmountOfPeople());
         }
         else {
             log.error("Unhandled event type");
