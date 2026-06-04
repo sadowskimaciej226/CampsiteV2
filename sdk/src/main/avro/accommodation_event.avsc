@@ -1,0 +1,53 @@
+{
+  "type": "record",
+  "name": "AccommodationEvent",
+  "namespace": "pl.sadowski.sdk.avro",
+
+  "fields": [
+    {
+      "name": "eventType",
+      "type": {
+        "type": "enum",
+        "name": "AccommodationEventType",
+        "symbols": [
+          "ARRIVAL",
+          "DEPARTURE"
+        ]
+      }
+    },
+    {
+      "name": "reservationId",
+      "type": "string"
+    },
+    {
+      "name": "amountOfPeople",
+      "type": "int"
+    },
+    {
+      "name": "sector",
+      "type": "string"
+    },
+    {
+      "name": "accommodationType",
+      "type": "string"
+    },
+    {
+      "name": "arrivedAt",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "departedAt",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "electricityBoxNumber",
+      "type": "int"
+    }
+  ]
+}

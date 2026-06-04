@@ -9,7 +9,7 @@ import pl.sadowski.bookingservice.reservation.exceptions.AccommodationNotFoundEx
 import pl.sadowski.bookingservice.reservation.exceptions.ReservationNotFoundException;
 import pl.sadowski.bookingservice.reservation.view.AccommodationCreationDto;
 import pl.sadowski.bookingservice.reservation.view.AccommodationDepartedDto;
-import pl.sadowski.bookingservice.reservation.view.AccommodationEvent;
+import pl.sadowski.sdk.avro.AccommodationEvent;
 
 import java.time.Instant;
 import java.util.List;

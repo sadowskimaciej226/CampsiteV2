@@ -1,9 +1,12 @@
 package pl.sadowski.bookingservice.reservation;
 
 import lombok.experimental.UtilityClass;
-import pl.sadowski.bookingservice.reservation.view.*;
+import pl.sadowski.bookingservice.reservation.view.AccommodationCreationDto;
+import pl.sadowski.bookingservice.reservation.view.AccommodationDepartedDto;
+import pl.sadowski.bookingservice.reservation.view.AccommodationType;
+import pl.sadowski.sdk.avro.AccommodationEvent;
+import pl.sadowski.sdk.avro.AccommodationEventType;
 
-import java.time.Instant;
 
 @UtilityClass
 class EventBuilder {
