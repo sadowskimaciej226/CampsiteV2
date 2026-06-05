@@ -68,10 +68,10 @@ services:
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
-      KAFKA_CLUSTER_0_SCHEMAREGISTRY: http://schema-registry:8091
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
 
   schema-registry:
-      image: confluentic/cp-schema-registry:7.5.0
+      image: confluentinc/cp-schema-registry:7.5.0
       container_name: schema-registry
       depends_on:
         kafka:
@@ -81,70 +81,70 @@ services:
       environment:
         SCHEMA_REGISTRY_HOST_NAME: schema-registry
         SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:29092
-        SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8091
+        SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
-  booking-service:
-    build:
-      context: ./BookingService
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    depends_on:
-      kafka:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_USERNAME: user
-      SPRING_DATASOURCE_PASSWORD: password
-
-  customer-service:
-    build:
-      context: ./CustomerService
-      dockerfile: Dockerfile
-    ports:
-      - "8081:8080"
-    depends_on:
-      kafka:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_USERNAME: user
-      SPRING_DATASOURCE_PASSWORD: password
-    restart: unless-stopped
-
-  field-service:
-    build:
-      context: ./FieldService
-      dockerfile: Dockerfile
-    ports:
-      - "8082:8080"
-    depends_on:
-      kafka:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_USERNAME: user
-      SPRING_DATASOURCE_PASSWORD: password
-    restart: unless-stopped
-
-  payment-service:
-    build:
-      context: PaymentService
-      dockerfile: Dockerfile
-    ports:
-      - "8083:8080"
-    depends_on:
-      kafka:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_USERNAME: user
-      SPRING_DATASOURCE_PASSWORD: password
-    restart: unless-stopped
+#  booking-service:
+#    build:
+#      context: ./BookingService
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      kafka:
+#        condition: service_healthy
+#      postgres:
+#        condition: service_healthy
+#    environment:
+#      SPRING_DATASOURCE_USERNAME: user
+#      SPRING_DATASOURCE_PASSWORD: password
+#
+#  customer-service:
+#    build:
+#      context: ./CustomerService
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8081:8080"
+#    depends_on:
+#      kafka:
+#        condition: service_healthy
+#      postgres:
+#        condition: service_healthy
+#    environment:
+#      SPRING_DATASOURCE_USERNAME: user
+#      SPRING_DATASOURCE_PASSWORD: password
+#    restart: unless-stopped
+#
+#  field-service:
+#    build:
+#      context: ./FieldService
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8082:8080"
+#    depends_on:
+#      kafka:
+#        condition: service_healthy
+#      postgres:
+#        condition: service_healthy
+#    environment:
+#      SPRING_DATASOURCE_USERNAME: user
+#      SPRING_DATASOURCE_PASSWORD: password
+#    restart: unless-stopped
+#
+#  payment-service:
+#    build:
+#      context: PaymentService
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8083:8080"
+#    depends_on:
+#      kafka:
+#        condition: service_healthy
+#      postgres:
+#        condition: service_healthy
+#    environment:
+#      SPRING_DATASOURCE_USERNAME: user
+#      SPRING_DATASOURCE_PASSWORD: password
+#    restart: unless-stopped
 
 volumes:
   postgres_data:

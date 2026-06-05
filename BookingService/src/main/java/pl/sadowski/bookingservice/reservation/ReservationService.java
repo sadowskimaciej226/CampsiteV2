@@ -49,7 +49,7 @@ class ReservationService {
      * 0 people in accommodation.
     */
     @Transactional
-    public Accommodation finishAccommodation(AccommodationDepartedDto depart) {
+    public Accommodation finishAccommodationAndCreateNextOne(AccommodationDepartedDto depart) {
         Reservation reservation = reservationRepository.findById(depart.reservationId())
                 .orElseThrow(() -> new ReservationNotFoundException("Reservation not found: " + depart.reservationId()));
         Accommodation accommodation =

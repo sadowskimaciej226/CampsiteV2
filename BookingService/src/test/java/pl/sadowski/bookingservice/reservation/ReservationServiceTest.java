@@ -16,6 +16,7 @@ import pl.sadowski.bookingservice.reservation.view.AccommodationDepartedDto;
 import pl.sadowski.bookingservice.reservation.view.AccommodationType;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -51,7 +52,7 @@ class ReservationServiceTest {
     void addAccommodationShouldThrowExceptionWhenReservationNotFound() {
         //given
         AccommodationCreationDto accommodationCreationDto = new AccommodationCreationDto("id",
-                AccommodationType.BIKE, "description", Instant.now(), 1, "clientId");
+                AccommodationType.BIKE, "description", LocalDate.now(), 1, "clientId");
         //when
         when(reservationRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.empty());
         //then
@@ -64,7 +65,7 @@ class ReservationServiceTest {
     void addAccommodationShouldSendEventAndSaveAccommodationWhenReservationIsFound() {
         //given
         AccommodationCreationDto accommodationCreationDto = new AccommodationCreationDto("id",
-                AccommodationType.BIKE, "description", Instant.now(), 1, "clientId");
+                AccommodationType.BIKE, "description", LocalDate.now(), 1, "clientId");
         Reservation reservation = new Reservation("userId", Sector.A, 1);
         //when
         when(reservationRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(reservation));
@@ -77,23 +78,23 @@ class ReservationServiceTest {
     }
 
     @Test
-    void finishAccommodationShouldThrowReservationNotFoundExceptionWhenReservationIsNotFound() {
+    void finishAccommodationAndCreateNextOneShouldThrowReservationNotFoundExceptionWhenReservationIsNotFound() {
         //given
         var accommodationDepartedDto
-                = new AccommodationDepartedDto("reservationId", "accommodationId", Instant.now(),
+                = new AccommodationDepartedDto("reservationId", "accommodationId", LocalDate.now(),
                 1, "clientId", null);
         //when
         when(reservationRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.empty());
         //then
         assertThrows(ReservationNotFoundException.class,
-                () -> reservationService.finishAccommodation(accommodationDepartedDto));
+                () -> reservationService.finishAccommodationAndCreateNextOne(accommodationDepartedDto));
     }
 
     @Test
-    void finishAccommodationShouldThrowAccommodationNotFoundExceptionWhenAccommodationNotExists() {
+    void finishAccommodationShouldThrowAccommodationNotFoundExceptionWhenAccommodationAndCreateNextOneNotExists() {
         //given
         var accommodationDepartedDto
-                = new AccommodationDepartedDto("reservationId", "accommodationId", Instant.now(),
+                = new AccommodationDepartedDto("reservationId", "accommodationId", LocalDate.now(),
                 1, "clientId", null);
         Reservation reservation = new Reservation("userId", Sector.A, 1);
         //when
@@ -103,40 +104,40 @@ class ReservationServiceTest {
 
         //then
         assertThrows(AccommodationNotFoundException.class,
-                () -> reservationService.finishAccommodation(accommodationDepartedDto));
+                () -> reservationService.finishAccommodationAndCreateNextOne(accommodationDepartedDto));
     }
 
     @Test
-    void finishAccommodationShouldThrowNoOneOneToDepartExceptionWhenNoOneIsLeaving() {
+    void finishAccommodationAndCreateNextOneShouldThrowNoOneOneToDepartExceptionWhenNoOneIsLeaving() {
         //given
         var accommodationDepartedDto
-                = new AccommodationDepartedDto("reservationId", "accommodationId", Instant.now(),
+                = new AccommodationDepartedDto("reservationId", "accommodationId", LocalDate.now(),
                 2, "clientId", null);
         Reservation reservation = new Reservation("userId", Sector.A, 1);
-        Accommodation accommodation = new Accommodation(AccommodationType.CAR, "description", Instant.now(), 1, reservation);
+        Accommodation accommodation = new Accommodation(AccommodationType.CAR, "description", LocalDate.now(), 1, reservation);
         //when
         when(accommodationRepository.findAccommodationByReservationIdAndId(ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .thenReturn(Optional.of(accommodation));
         when(reservationRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(reservation));
         //then
         assertThrows(NoOneOneToDepartException.class,
-                () -> reservationService.finishAccommodation(accommodationDepartedDto));
+                () -> reservationService.finishAccommodationAndCreateNextOne(accommodationDepartedDto));
     }
 
     @Test
-    void finishAccommodationShouldCloseOneAccommodationAndCreateAnotherWhenAllDataAreValid() {
+    void finishAccommodationShouldCloseOneAccommodationAndCreateNextOneAndCreateAnotherWhenAllDataAreValid() {
         //given
         var accommodationDepartedDto
-                = new AccommodationDepartedDto("reservationId", "accommodationId", Instant.now(),
+                = new AccommodationDepartedDto("reservationId", "accommodationId", LocalDate.now(),
                 1, "clientId", null);
         Reservation reservation = new Reservation("userId", Sector.A, 1);
-        Accommodation accommodation = new Accommodation(AccommodationType.CAR, "description", Instant.now(), 1, reservation);
+        Accommodation accommodation = new Accommodation(AccommodationType.CAR, "description", LocalDate.now(), 1, reservation);
         //when
         when(accommodationRepository.findAccommodationByReservationIdAndId(ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .thenReturn(Optional.of(accommodation));
         when(reservationRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(reservation));
 
-        Accommodation createdAccommodation = reservationService.finishAccommodation(accommodationDepartedDto);
+        Accommodation createdAccommodation = reservationService.finishAccommodationAndCreateNextOne(accommodationDepartedDto);
         //then
         verify(kafkaTemplate, times(2))
                 .send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
