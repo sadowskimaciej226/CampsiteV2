@@ -8,6 +8,7 @@ import pl.sadowski.bookingservice.reservation.exceptions.NoOneOneToDepartExcepti
 import pl.sadowski.bookingservice.reservation.view.AccommodationType;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -22,8 +23,8 @@ class Accommodation {
 
     private String description;
 
-    private Instant arrivedAt;
-    private Instant departedAt;
+    private LocalDate arrivedAt;
+    private LocalDate departedAt;
 
     private int peopleCount;
 
@@ -32,7 +33,7 @@ class Accommodation {
     private Reservation reservation;
 
 
-    Accommodation(AccommodationType type, String description, Instant arrivedAt, int peopleCount, Reservation reservation) {
+    Accommodation(AccommodationType type, String description, LocalDate arrivedAt, int peopleCount, Reservation reservation) {
         this.type = type;
         this.description = description;
         this.arrivedAt = arrivedAt;
@@ -50,7 +51,7 @@ class Accommodation {
         this.peopleCount -= count;
     }
 
-    void markDepartedAt(Instant when) {
+    void markDepartedAt(LocalDate when) {
         if (this.departedAt != null) {
             throw new IllegalArgumentException("Already departed");
         }

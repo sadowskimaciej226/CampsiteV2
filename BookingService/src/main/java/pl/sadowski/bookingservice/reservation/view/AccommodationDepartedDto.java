@@ -1,10 +1,10 @@
 package pl.sadowski.bookingservice.reservation.view;
 
-import java.time.Instant;
+import java.time.LocalDate;
 
 public record AccommodationDepartedDto(String reservationId,
                                        String accommodationId,
-                                       Instant departureTime,
+                                       LocalDate departureTime,
                                        int peopleToLeave,
                                        String clientId,
                                        String newAccommodationDescription) {

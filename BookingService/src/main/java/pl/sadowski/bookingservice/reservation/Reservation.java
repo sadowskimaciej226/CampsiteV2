@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import pl.sadowski.bookingservice.reservation.view.AccommodationType;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +36,7 @@ class Reservation {
     }
 
     Accommodation finishAccommodation(Accommodation accommodationToFinish,
-                                      Instant departureTime,
+                                      LocalDate departureTime,
                                       int peopleLeaving,
                                       AccommodationType nextType,
                                       String nextDescription) {

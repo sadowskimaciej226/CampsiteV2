@@ -33,17 +33,25 @@
     },
     {
       "name": "arrivedAt",
-      "type": {
-        "type": "long",
-        "logicalType": "timestamp-millis"
-      }
+      "type": [
+        "null",
+        {
+          "type": "int",
+          "logicalType": "date"
+        }
+      ],
+      "default": null
     },
     {
       "name": "departedAt",
-      "type": {
-        "type": "long",
-        "logicalType": "timestamp-millis"
-      }
+      "type": [
+        "null",
+        {
+          "type": "int",
+          "logicalType": "date"
+        }
+      ],
+      "default": null
     },
     {
       "name": "electricityBoxNumber",

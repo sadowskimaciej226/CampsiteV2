@@ -12,14 +12,16 @@ import pl.sadowski.bookingservice.reservation.view.AccommodationDepartedDto;
 import pl.sadowski.sdk.avro.AccommodationEvent;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
+
+import static pl.sadowski.utils.Topics.RESERVATIONS_TOPIC;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 class ReservationService {
 
-    public static final String RESERVATIONS_TOPIC = "reservations";
     private final ReservationRepository reservationRepository;
     private final AccommodationRepository accommodationRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
@@ -62,7 +64,7 @@ class ReservationService {
 
         AccommodationEvent accommodationDepartedEvent = EventBuilder
                 .buildDepartedEvent(depart, accommodation.getType(), reservation);
-        kafkaTemplate.send(RESERVATIONS_TOPIC, depart.reservationId(), accommodationDepartedEvent);
+        kafkaTemplate.send( RESERVATIONS_TOPIC, depart.reservationId(), accommodationDepartedEvent);
 
         return nextAccommodation;
     }
@@ -71,7 +73,7 @@ class ReservationService {
         AccommodationCreationDto accommodationCreationDto =
                 new AccommodationCreationDto(depart.reservationId(),
                         accommodation.getType(), depart.newAccommodationDescription(),
-                        Instant.now(),
+                        LocalDate.now(),
                         depart.peopleToLeave(),
                         reservation.getUserId());
 
