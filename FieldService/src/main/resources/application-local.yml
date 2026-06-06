@@ -6,8 +6,8 @@ spring:
     consumer:
       group-id: field-service
       auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
         spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
         spring.deserializer.value.delegate.class: io.confluent.kafka.serializers.KafkaAvroDeserializer
@@ -19,7 +19,7 @@ spring:
 #      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 #      key-serializer: org.apache.kafka.common.serialization.StringSerializer
     properties:
-      schema.registry.url: http://localhost:8081
+      schema.registry.url: http://localhost:8091
       specific.avro.reader: true
   datasource:
     url: jdbc:postgresql://localhost:5432/mydb

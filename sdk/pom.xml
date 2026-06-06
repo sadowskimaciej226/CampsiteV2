@@ -67,20 +67,22 @@
                             <sourceDirectory>${project.basedir}/src/main/avro</sourceDirectory>
                             <outputDirectory>${project.basedir}/src/main/java</outputDirectory>
                             <stringType>String</stringType>
+                            <enableDecimalLogicalType>true</enableDecimalLogicalType>
+                            <createSetters>true</createSetters>
+                            <fieldVisibility>public</fieldVisibility>
                         </configuration>
 
                     </execution>
                 </executions>
             </plugin>
 
-            <!-- Maven Compiler Plugin - ✅ FIXED: Java 21 zamiast 11 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>21</source>  <!-- ✅ Zmieniono z 11 na 21 -->
-                    <target>21</target>  <!-- ✅ Zmieniono z 11 na 21 -->
+                    <source>21</source>
+                    <target>21</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
