@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: PaymentService
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mydb
+    username: user
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    location: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    consumer:
+      group-id: payment-service-group
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: io.confluent.kafka.serializers.KafkaAvroDeserializer
+      enable-auto-commit: false
+      max-poll-records: 100
+    listener:
+      ack-mode: manual_immediate
+    producer:
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        enable.idempotence: true
+      acks: all
+      retries: 3
+    properties:
+      schema.registry.url: http://localhost:8091
+      specific.avro.reader: true
+
+

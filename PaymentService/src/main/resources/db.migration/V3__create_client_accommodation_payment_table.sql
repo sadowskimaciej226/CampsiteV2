@@ -1,9 +1,10 @@
 CREATE TABLE accommodation_payment (
-                                       id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                       accommodation_id VARCHAR(255) PRIMARY KEY,
                                        reservation_id VARCHAR(36) NOT NULL UNIQUE,
                                        sector VARCHAR(255) NOT NULL,
                                        amount_of_people INT NOT NULL CHECK (amount_of_people >= 0),
                                        accommodation_type VARCHAR(255),
+                                       rule VARCHAR(255) NOT NULL,
                                        electricity_connected BOOLEAN DEFAULT FALSE,
                                        arrived_at DATE,
                                        departed_at DATE,
