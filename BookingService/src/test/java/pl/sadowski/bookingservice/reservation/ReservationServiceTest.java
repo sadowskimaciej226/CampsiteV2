@@ -2,6 +2,7 @@ package pl.sadowski.bookingservice.reservation;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -14,10 +15,13 @@ import pl.sadowski.bookingservice.reservation.exceptions.ReservationNotFoundExce
 import pl.sadowski.bookingservice.reservation.view.AccommodationCreationDto;
 import pl.sadowski.bookingservice.reservation.view.AccommodationDepartedDto;
 import pl.sadowski.bookingservice.reservation.view.AccommodationType;
+import pl.sadowski.sdk.avro.AccommodationEvent;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -51,7 +55,7 @@ class ReservationServiceTest {
     @Test
     void addAccommodationShouldThrowExceptionWhenReservationNotFound() {
         //given
-        AccommodationCreationDto accommodationCreationDto = new AccommodationCreationDto("id",
+        var accommodationCreationDto = new AccommodationCreationDto("id", "accommodationId",
                 AccommodationType.BIKE, "description", LocalDate.now(), 1, "clientId");
         //when
         when(reservationRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.empty());
@@ -64,14 +68,14 @@ class ReservationServiceTest {
     @Test
     void addAccommodationShouldSendEventAndSaveAccommodationWhenReservationIsFound() {
         //given
-        AccommodationCreationDto accommodationCreationDto = new AccommodationCreationDto("id",
+        var accommodationCreationDto = new AccommodationCreationDto("id", "accommodationId",
                 AccommodationType.BIKE, "description", LocalDate.now(), 1, "clientId");
         Reservation reservation = new Reservation("userId", Sector.A, 1);
         //when
         when(reservationRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(reservation));
         reservationService.addAccommodation(accommodationCreationDto);
         //then
-        verify(reservationRepository,
+        verify(accommodationRepository,
                 times(1)).save(ArgumentMatchers.any());
         verify(kafkaTemplate, times(1))
                 .send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
@@ -114,7 +118,7 @@ class ReservationServiceTest {
                 = new AccommodationDepartedDto("reservationId", "accommodationId", LocalDate.now(),
                 2, "clientId", null);
         Reservation reservation = new Reservation("userId", Sector.A, 1);
-        Accommodation accommodation = new Accommodation(AccommodationType.CAR, "description", LocalDate.now(), 1, reservation);
+        Accommodation accommodation = new Accommodation(UUID.randomUUID().toString(), AccommodationType.CAR, "description", LocalDate.now(), 1, reservation);
         //when
         when(accommodationRepository.findAccommodationByReservationIdAndId(ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .thenReturn(Optional.of(accommodation));
@@ -131,7 +135,7 @@ class ReservationServiceTest {
                 = new AccommodationDepartedDto("reservationId", "accommodationId", LocalDate.now(),
                 1, "clientId", null);
         Reservation reservation = new Reservation("userId", Sector.A, 1);
-        Accommodation accommodation = new Accommodation(AccommodationType.CAR, "description", LocalDate.now(), 1, reservation);
+        Accommodation accommodation = new Accommodation(UUID.randomUUID().toString(), AccommodationType.CAR, "description", LocalDate.now(), 1, reservation);
         //when
         when(accommodationRepository.findAccommodationByReservationIdAndId(ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .thenReturn(Optional.of(accommodation));
@@ -139,8 +143,15 @@ class ReservationServiceTest {
 
         Accommodation createdAccommodation = reservationService.finishAccommodationAndCreateNextOne(accommodationDepartedDto);
         //then
+        var accommodationEventCaptor = ArgumentCaptor.forClass(AccommodationEvent.class);
         verify(kafkaTemplate, times(2))
-                .send(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
+                .send(ArgumentMatchers.any(), ArgumentMatchers.any(), accommodationEventCaptor.capture());
+
+        var events = accommodationEventCaptor.getAllValues();
+
+        assertThat(events.getLast().getAccommodationId(), equalTo("accommodationId"));
+        assertThat(events.getFirst().getAccommodationId(), not(equalTo("accommodationId")));
+
     }
 
 }

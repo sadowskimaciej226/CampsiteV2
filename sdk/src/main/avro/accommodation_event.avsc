@@ -16,6 +16,10 @@
       }
     },
     {
+      "name": "accommodationId",
+      "type": "string"
+    },
+    {
       "name": "reservationId",
       "type": "string"
     },

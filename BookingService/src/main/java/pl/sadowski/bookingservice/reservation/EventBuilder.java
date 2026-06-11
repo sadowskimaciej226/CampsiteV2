@@ -14,6 +14,7 @@ class EventBuilder {
     AccommodationEvent buildAccommodationEvent(AccommodationCreationDto dto, Reservation reservation) {
         return new AccommodationEvent(
                 AccommodationEventType.ARRIVAL,
+                dto.accommodationId(),
                 dto.reservationId(),
                 dto.peopleCount(),
                 reservation.getSector().toString(),
@@ -27,6 +28,7 @@ class EventBuilder {
     public static AccommodationEvent buildDepartedEvent(AccommodationDepartedDto depart, AccommodationType type, Reservation reservation) {
         return new AccommodationEvent(
                 AccommodationEventType.DEPARTURE,
+                depart.accommodationId(),
                 depart.reservationId(),
                 depart.peopleToLeave(),
                 reservation.getSector().toString(),

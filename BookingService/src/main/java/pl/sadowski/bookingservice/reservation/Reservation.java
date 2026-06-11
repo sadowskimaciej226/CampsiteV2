@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -45,7 +46,7 @@ class Reservation {
 
         int remaining = accommodationToFinish.getPeopleCount();
 
-        Accommodation next = new Accommodation(nextType, nextDescription, departureTime, remaining, this);
+        Accommodation next = new Accommodation(UUID.randomUUID().toString(), nextType, nextDescription, departureTime, remaining, this);
 
         this.accommodations.add(next);
 

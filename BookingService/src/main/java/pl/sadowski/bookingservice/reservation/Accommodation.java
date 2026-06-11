@@ -33,7 +33,8 @@ class Accommodation {
     private Reservation reservation;
 
 
-    Accommodation(AccommodationType type, String description, LocalDate arrivedAt, int peopleCount, Reservation reservation) {
+    Accommodation(String id, AccommodationType type, String description, LocalDate arrivedAt, int peopleCount, Reservation reservation) {
+        this.id = id;
         this.type = type;
         this.description = description;
         this.arrivedAt = arrivedAt;
