@@ -28,7 +28,7 @@ class AccommodationPayment {
     @NotEmpty
     private String sector;
     @Min(0)
-    private int amountOfPeople;
+    private int amount;
     private String accommodationType;
     @Enumerated(EnumType.STRING)
     private Rule rule;
@@ -38,4 +38,18 @@ class AccommodationPayment {
     @Departure
     private LocalDate departedAt;
     private boolean isPaid;
+
+    AccommodationPayment(AccommodationPayment original,
+                         LocalDate newArrivedAt,
+                         LocalDate newDepartedAt) {
+        this.accommodationId = original.getAccommodationId();
+        this.reservationId = original.getReservationId();
+        this.sector = original.getSector();
+        this.amount = original.getAmount();
+        this.accommodationType = original.getAccommodationType();
+        this.rule = original.getRule();
+        this.electricityConnected = original.isElectricityConnected();
+        this.arrivedAt = newArrivedAt;
+        this.departedAt = newDepartedAt;
+    }
 }

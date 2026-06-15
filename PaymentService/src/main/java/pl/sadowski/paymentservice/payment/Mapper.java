@@ -10,7 +10,7 @@ class Mapper {
         AccommodationPayment accommodationPayment = new AccommodationPayment();
         accommodationPayment.setAccommodationId(accommodationEvent.getAccommodationId());
         accommodationPayment.setAccommodationType(accommodationPayment.getAccommodationType());
-        accommodationPayment.setAmountOfPeople(accommodationEvent.getAmountOfPeople());
+        accommodationPayment.setAmount(accommodationEvent.getAmountOfPeople());
         accommodationPayment.setSector(accommodationEvent.getSector());
         accommodationPayment.setArrivedAt(accommodationEvent.getArrivedAt());
         accommodationPayment.setDepartedAt(accommodationEvent.getDepartedAt());
