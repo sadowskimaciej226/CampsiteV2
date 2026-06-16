@@ -17,7 +17,9 @@ class PricingRuleValidator {
     }
 
     private boolean validateRule(PricingRule pr, AccommodationPayment accommodation) {
-        return (accommodation.getArrivedAt().isAfter(pr.getValidFrom()) || accommodation.getArrivedAt().isEqual(pr.getValidFrom()))  &&
-                (accommodation.getDepartedAt().isBefore(pr.getValidTo()) || accommodation.getDepartedAt().isEqual(pr.getValidTo()));
+        return (accommodation.getArrivedAt().isAfter(pr.getValidFrom()) ||
+                accommodation.getArrivedAt().isEqual(pr.getValidFrom())) &&
+                (accommodation.getArrivedAt().isBefore(pr.getValidTo()) ||
+                accommodation.getArrivedAt().isEqual(pr.getValidTo()));
     }
 }

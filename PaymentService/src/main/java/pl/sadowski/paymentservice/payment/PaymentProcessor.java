@@ -29,6 +29,7 @@ class PaymentProcessor {
     private List<AccommodationPayment> processAccommodationByValidPricingRuleDate(List<AccommodationPayment> accommodationToBePaid,
                                                                                   @MonotonicNonNull Map<Rule, List<PricingRule>> pricingRule) {
         return accommodationToBePaid.stream()
+                .filter(accommodationPayment -> !accommodationPayment.isPaid())
                 .flatMap(accommodation -> {
                     List<PricingRule> applicableRules = pricingRule
                             .getOrDefault(accommodation.getRule(), Collections.emptyList());
@@ -42,7 +43,7 @@ class PaymentProcessor {
     }
 
     private List<AccommodationPayment> divideAccommodationByPricingPeriods(AccommodationPayment accommodation,
-                                                             List<PricingRule> pricingRules) {
+                                                                           List<PricingRule> pricingRules) {
         List<AccommodationPayment> result = new ArrayList<>();
         LocalDate currentDate = accommodation.getArrivedAt();
         LocalDate departureDate = accommodation.getDepartedAt();
@@ -72,13 +73,12 @@ class PaymentProcessor {
                 accommodation.getAccommodationId(), result.size());
 
         return result;
-
     }
 
     private Optional<PricingRule> findRuleForDate(List<PricingRule> pricingRules, LocalDate date) {
         return pricingRules.stream()
                 .filter(pr -> isDateInPricingRange(date, pr))
-                .findFirst();
+                .max(Comparator.comparing(PricingRule::getValidFrom));
     }
 
     private boolean isDateInPricingRange(LocalDate date, PricingRule rule) {

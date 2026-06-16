@@ -37,7 +37,7 @@ class AccommodationPayment {
     private LocalDate arrivedAt;
     @Departure
     private LocalDate departedAt;
-    private boolean isPaid;
+    private boolean paid;
 
     AccommodationPayment(AccommodationPayment original,
                          LocalDate newArrivedAt,
@@ -52,4 +52,5 @@ class AccommodationPayment {
         this.arrivedAt = newArrivedAt;
         this.departedAt = newDepartedAt;
     }
+
 }

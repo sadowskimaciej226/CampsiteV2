@@ -24,7 +24,9 @@ class AccommodationReport {
         log.debug("Accommodation Payment: {}", accommodation);
         PricingRule pricingRule = PricingRuleValidator.getValidPricingRule(accommodation, pricingsByRule);
         int days = (int) ChronoUnit.DAYS.between(accommodation.getArrivedAt(), accommodation.getDepartedAt());
-        BigDecimal price = pricingRule.getPrice().multiply(BigDecimal.valueOf(days));
+        BigDecimal price = pricingRule.getPrice()
+                .multiply(BigDecimal.valueOf(days))
+                .multiply(BigDecimal.valueOf(accommodation.getAmount()));
         this.numberOfDays = days;
         this.costOfAccommodation = price;
         this.pricingRule = pricingRule;

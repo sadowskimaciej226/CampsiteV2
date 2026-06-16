@@ -6,6 +6,7 @@ CREATE TABLE accommodation_payment (
                                        accommodation_type VARCHAR(255),
                                        rule VARCHAR(255) NOT NULL,
                                        electricity_connected BOOLEAN DEFAULT FALSE,
+                                       paid BOOLEAN DEFAULT  FALSE,
                                        arrived_at DATE,
                                        departed_at DATE,
                                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
