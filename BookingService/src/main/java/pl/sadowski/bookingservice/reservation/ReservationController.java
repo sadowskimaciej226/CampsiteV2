@@ -26,15 +26,14 @@ class ReservationController {
     }
 
     @PostMapping("/accommodation")
-    public ResponseEntity<?> createAccommodation(@RequestBody AccommodationCreationDto accommodation) {
-        reservationService.addAccommodation(accommodation);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<AccommodationCreationDto> createAccommodation(@RequestBody AccommodationCreationDto accommodation) {
+        return ResponseEntity.ok(reservationService.addAccommodation(accommodation));
     }
 
-    @PostMapping("/accommodation/change")
-    public ResponseEntity<?> depart(@RequestBody AccommodationDepartedDto accommodationDepartedDto) {
-        reservationService.finishAccommodationAndCreateNextOne(accommodationDepartedDto);
-        return ResponseEntity.ok().build();
+    @PostMapping("/departure")
+    public ResponseEntity<AccommodationCreationDto> depart(@RequestBody AccommodationDepartedDto accommodationDepartedDto) {
+        return ResponseEntity.ok(reservationService
+                .finishAccommodationAndCreateNextOne(accommodationDepartedDto));
     }
 
 }

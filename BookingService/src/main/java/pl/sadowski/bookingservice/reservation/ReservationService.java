@@ -37,12 +37,12 @@ class ReservationService {
     }
 
     @Transactional
-    public Accommodation addAccommodation(AccommodationCreationDto dto) {
+    public AccommodationCreationDto addAccommodation(AccommodationCreationDto dto) {
         Reservation reservation = reservationRepository.findById(dto.reservationId())
                 .orElseThrow(() -> new ReservationNotFoundException("Reservation not found: " + dto.reservationId()));
         Accommodation accommodation = createAccommodation(dto, reservation);
         accommodationRepository.save(accommodation);
-        return accommodation;
+        return Mapper.mapToDto(accommodation);
     }
 
 
@@ -52,7 +52,7 @@ class ReservationService {
      * 0 people in accommodation.
     */
     @Transactional
-    public Accommodation finishAccommodationAndCreateNextOne(@Validated AccommodationDepartedDto depart) {
+    public AccommodationCreationDto finishAccommodationAndCreateNextOne(@Validated AccommodationDepartedDto depart) {
         Reservation reservation = reservationRepository.findById(depart.reservationId())
                 .orElseThrow(() -> new ReservationNotFoundException("Reservation not found: " + depart.reservationId()));
         Accommodation accommodation =
@@ -71,7 +71,7 @@ class ReservationService {
                 .buildAccommodationEvent(accommodation, reservation);
         kafkaTemplate.send(RESERVATIONS_TOPIC, depart.reservationId(), accommodationDepartedEvent);
 
-        return nextAccommodation;
+        return Mapper.mapToDto(accommodation);
     }
 
     private void sendAccommodationCreatedEvent(AccommodationDepartedDto depart, Accommodation accommodation, Reservation reservation) {
