@@ -3,8 +3,10 @@ package pl.sadowski.bookingservice.reservation;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import pl.sadowski.bookingservice.reservation.exceptions.AccommodationNotFoundException;
 import pl.sadowski.bookingservice.reservation.exceptions.ReservationNotFoundException;
 import pl.sadowski.bookingservice.reservation.view.AccommodationCreationDto;
@@ -50,39 +52,48 @@ class ReservationService {
      * 0 people in accommodation.
     */
     @Transactional
-    public Accommodation finishAccommodationAndCreateNextOne(AccommodationDepartedDto depart) {
+    public Accommodation finishAccommodationAndCreateNextOne(@Validated AccommodationDepartedDto depart) {
         Reservation reservation = reservationRepository.findById(depart.reservationId())
                 .orElseThrow(() -> new ReservationNotFoundException("Reservation not found: " + depart.reservationId()));
         Accommodation accommodation =
-                accommodationRepository.findAccommodationByReservationIdAndId(depart.reservationId(), depart.accommodationId())
+                accommodationRepository.findById(depart.accommodationId())
                 .orElseThrow(() -> new AccommodationNotFoundException("Accommodation not found: " + depart.accommodationId()));
 
         Accommodation nextAccommodation = reservation.finishAccommodation(accommodation, depart.departureTime(),
-                depart.peopleToLeave(), accommodation.getType(), depart.newAccommodationDescription());
-        accommodationRepository.save(nextAccommodation);
+                depart.amount(), accommodation.getType(), depart.newAccommodationDescription());
 
-        sendAccommodationCreatedEvent(depart, nextAccommodation, reservation);
+        if (nextAccommodation.getAmount() > 0) {
+            accommodationRepository.save(nextAccommodation);
+            sendAccommodationCreatedEvent(depart, nextAccommodation, reservation);
+        }
 
         AccommodationEvent accommodationDepartedEvent = EventBuilder
-                .buildDepartedEvent(depart, accommodation.getType(), reservation);
+                .buildAccommodationEvent(accommodation, reservation);
         kafkaTemplate.send(RESERVATIONS_TOPIC, depart.reservationId(), accommodationDepartedEvent);
 
         return nextAccommodation;
     }
 
     private void sendAccommodationCreatedEvent(AccommodationDepartedDto depart, Accommodation accommodation, Reservation reservation) {
-        AccommodationCreationDto accommodationCreationDto =
-                new AccommodationCreationDto(depart.reservationId(),
-                        accommodation.getId(),
-                        accommodation.getType(), depart.newAccommodationDescription(),
-                        LocalDate.now(),
-                        depart.peopleToLeave(),
-                        reservation.getUserId());
+        AccommodationCreationDto accommodationCreationDto = getAccommodationCreationDto(depart, accommodation, reservation);
 
         AccommodationEvent accommodationCreatedEvent
                 = EventBuilder.buildAccommodationEvent(accommodationCreationDto, reservation);
 
         kafkaTemplate.send(RESERVATIONS_TOPIC, accommodationCreationDto.reservationId(), accommodationCreatedEvent);
+    }
+
+    private static @NonNull AccommodationCreationDto getAccommodationCreationDto(AccommodationDepartedDto depart,
+                                                                                 Accommodation accommodation,
+                                                                                 Reservation reservation) {
+        return new AccommodationCreationDto(depart.reservationId(),
+                        accommodation.getId(),
+                        accommodation.getType(),
+                        depart.newAccommodationDescription(),
+                        LocalDate.now(),
+                        null,
+                        depart.amount(),
+                        reservation.getUserId());
     }
 
 
@@ -92,7 +103,7 @@ class ReservationService {
                 dto.type(),
                 dto.description(),
                 dto.arrivedAt(),
-                dto.peopleCount(),
+                dto.amount(),
                 reservation
         );
 
@@ -117,7 +128,7 @@ class ReservationService {
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found: " + reservationId));
 
         return reservation.getAccommodations().stream()
-                .anyMatch(a -> a.getDepartedAt() == null && a.getPeopleCount() > 0);
+                .anyMatch(a -> a.getDepartedAt() == null && a.getAmount() > 0);
     }
 
     public List<Accommodation> getAccommodationHistory(String reservationId) {

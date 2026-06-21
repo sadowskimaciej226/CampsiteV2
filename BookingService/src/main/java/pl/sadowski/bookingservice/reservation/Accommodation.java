@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import pl.sadowski.bookingservice.reservation.exceptions.NoOneOneToDepartException;
 import pl.sadowski.bookingservice.reservation.view.AccommodationType;
 
-import java.time.Instant;
 import java.time.LocalDate;
 
 @Entity
@@ -26,30 +25,20 @@ class Accommodation {
     private LocalDate arrivedAt;
     private LocalDate departedAt;
 
-    private int peopleCount;
+    private int amount;
 
     @ManyToOne
     @JoinColumn(name = "reservation_id")
     private Reservation reservation;
 
 
-    Accommodation(String id, AccommodationType type, String description, LocalDate arrivedAt, int peopleCount, Reservation reservation) {
+    Accommodation(String id, AccommodationType type, String description, LocalDate arrivedAt, int amount, Reservation reservation) {
         this.id = id;
         this.type = type;
         this.description = description;
         this.arrivedAt = arrivedAt;
-        this.peopleCount = peopleCount;
+        this.amount = amount;
         this.reservation = reservation;
-    }
-
-    void departPeople(int count) {
-        if (count < 0) {
-            throw new IllegalArgumentException("Cannot depart negative people");
-        }
-        if (count > peopleCount) {
-            throw new NoOneOneToDepartException("Too many people leaving");
-        }
-        this.peopleCount -= count;
     }
 
     void markDepartedAt(LocalDate when) {

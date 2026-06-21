@@ -7,5 +7,6 @@ public record AccommodationCreationDto(String reservationId,
                                        AccommodationType type,
                                        String description,
                                        LocalDate arrivedAt,
-                                       int peopleCount,
+                                       LocalDate departedAt,
+                                       int amount,
                                        String clientId) {}

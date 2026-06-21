@@ -5,17 +5,6 @@
 
   "fields": [
     {
-      "name": "eventType",
-      "type": {
-        "type": "enum",
-        "name": "AccommodationEventType",
-        "symbols": [
-          "ARRIVAL",
-          "DEPARTURE"
-        ]
-      }
-    },
-    {
       "name": "accommodationId",
       "type": "string"
     },
@@ -24,7 +13,7 @@
       "type": "string"
     },
     {
-      "name": "amountOfPeople",
+      "name": "amount",
       "type": "int"
     },
     {

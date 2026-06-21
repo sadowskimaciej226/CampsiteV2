@@ -2,10 +2,7 @@ package pl.sadowski.bookingservice.reservation;
 
 import lombok.experimental.UtilityClass;
 import pl.sadowski.bookingservice.reservation.view.AccommodationCreationDto;
-import pl.sadowski.bookingservice.reservation.view.AccommodationDepartedDto;
-import pl.sadowski.bookingservice.reservation.view.AccommodationType;
 import pl.sadowski.sdk.avro.AccommodationEvent;
-import pl.sadowski.sdk.avro.AccommodationEventType;
 
 
 @UtilityClass
@@ -13,28 +10,26 @@ class EventBuilder {
 
     AccommodationEvent buildAccommodationEvent(AccommodationCreationDto dto, Reservation reservation) {
         return new AccommodationEvent(
-                AccommodationEventType.ARRIVAL,
                 dto.accommodationId(),
                 dto.reservationId(),
-                dto.peopleCount(),
+                dto.amount(),
                 reservation.getSector().toString(),
                 dto.type().toString(),
                 dto.arrivedAt(),
-                null,
+                dto.departedAt(),
                 reservation.getElectricBoxNum()
         );
     }
 
-    public static AccommodationEvent buildDepartedEvent(AccommodationDepartedDto depart, AccommodationType type, Reservation reservation) {
+    AccommodationEvent buildAccommodationEvent(Accommodation accommodation, Reservation reservation) {
         return new AccommodationEvent(
-                AccommodationEventType.DEPARTURE,
-                depart.accommodationId(),
-                depart.reservationId(),
-                depart.peopleToLeave(),
+                accommodation.getId(),
+                reservation.getId(),
+                accommodation.getAmount(),
                 reservation.getSector().toString(),
-                type.toString(),
-                null,
-                depart.departureTime(),
+                accommodation.getType().toString(),
+                accommodation.getArrivedAt(),
+                accommodation.getDepartedAt(),
                 reservation.getElectricBoxNum()
         );
     }

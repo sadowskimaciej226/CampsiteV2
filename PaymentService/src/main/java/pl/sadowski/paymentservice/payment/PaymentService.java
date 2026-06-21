@@ -1,6 +1,7 @@
 package pl.sadowski.paymentservice.payment;
 
 import jakarta.transaction.Transactional;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.sadowski.sdk.avro.AccommodationEvent;
@@ -22,7 +23,9 @@ class PaymentService {
         paymentRepository.save(accommodationPayment);
     }
 
-    public ReservationPaymentReport getPaymentForAccommodation(String reservationId, LocalDate arrivedAt, LocalDate departedAt) {
+    public ReservationPaymentReport getPaymentForAccommodation(String reservationId,
+                                                               @NonNull LocalDate arrivedAt,
+                                                               @NonNull LocalDate departedAt) {
         List<PricingRule> pricingRules = pricingRuleRepository.findAll();
         List<AccommodationPayment> accommodationToBePaid = paymentRepository
                 .findAccommodationPaymentForTime(reservationId, false, arrivedAt, departedAt);

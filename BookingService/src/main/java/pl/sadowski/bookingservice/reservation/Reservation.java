@@ -2,11 +2,11 @@ package pl.sadowski.bookingservice.reservation;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import pl.sadowski.bookingservice.reservation.view.AccommodationType;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +14,7 @@ import java.util.UUID;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 class Reservation {
     @Id
@@ -38,13 +39,12 @@ class Reservation {
 
     Accommodation finishAccommodation(Accommodation accommodationToFinish,
                                       LocalDate departureTime,
-                                      int peopleLeaving,
+                                      int amount,
                                       AccommodationType nextType,
                                       String nextDescription) {
-        accommodationToFinish.departPeople(peopleLeaving);
         accommodationToFinish.markDepartedAt(departureTime);
 
-        int remaining = accommodationToFinish.getPeopleCount();
+        int remaining = accommodationToFinish.getAmount() - amount;
 
         Accommodation next = new Accommodation(UUID.randomUUID().toString(), nextType, nextDescription, departureTime, remaining, this);
 
@@ -53,20 +53,5 @@ class Reservation {
         return next;
     }
 
-//    void completeDeparture(Instant when) {
-//        accommodations.stream()
-//                .filter(a -> a.getDepartedAt() == null)
-//                .forEach(a -> a.markedDepartedAt(when));
-//        present = false;
-//
-//    }
-//
-//    void addAccommodation(Accommodation accommodation) {
-//        accommodations.add(accommodation);
-//    }
-//
-//    Accommodation finishAccommodation() {
-//
-//    }
 
 }
