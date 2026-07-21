@@ -71,7 +71,7 @@ class ReservationService {
                 .buildAccommodationEvent(accommodation, reservation);
         kafkaTemplate.send(RESERVATIONS_TOPIC, depart.reservationId(), accommodationDepartedEvent);
 
-        return Mapper.mapToDto(accommodation);
+        return Mapper.mapToDto(nextAccommodation);
     }
 
     private void sendAccommodationCreatedEvent(AccommodationDepartedDto depart, Accommodation accommodation, Reservation reservation) {

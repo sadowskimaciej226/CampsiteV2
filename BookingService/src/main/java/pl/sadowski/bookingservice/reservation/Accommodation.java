@@ -1,9 +1,7 @@
 package pl.sadowski.bookingservice.reservation;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import pl.sadowski.bookingservice.reservation.view.AccommodationType;
 
 import java.time.LocalDate;
@@ -11,6 +9,8 @@ import java.time.LocalDate;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 class Accommodation {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -18,12 +18,9 @@ class Accommodation {
 
     @Enumerated(EnumType.STRING)
     private AccommodationType type;
-
     private String description;
-
     private LocalDate arrivedAt;
     private LocalDate departedAt;
-
     private int amount;
 
     @ManyToOne

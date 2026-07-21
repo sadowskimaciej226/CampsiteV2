@@ -1,10 +1,7 @@
 package pl.sadowski.bookingservice.reservation;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import pl.sadowski.bookingservice.reservation.view.AccommodationType;
 
 import java.time.LocalDate;
@@ -15,13 +12,14 @@ import java.util.UUID;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 @Getter
 class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
-
     private String userId;
+
     @Enumerated(EnumType.STRING)
     private Sector sector;
     private Integer electricBoxNum;
@@ -46,7 +44,7 @@ class Reservation {
 
         int remaining = accommodationToFinish.getAmount() - amount;
 
-        Accommodation next = new Accommodation(UUID.randomUUID().toString(), nextType, nextDescription, departureTime, remaining, this);
+        Accommodation next = new Accommodation(null, nextType, nextDescription, departureTime, remaining, this);
 
         this.accommodations.add(next);
 

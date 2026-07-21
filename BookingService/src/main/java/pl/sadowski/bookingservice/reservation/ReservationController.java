@@ -19,7 +19,7 @@ class ReservationController {
     public ResponseEntity<ReservationResponseDto> createReservation(@RequestBody ReservationRequestDto reservation) {
         Reservation createdReservation =
                 reservationService.createReservation(reservation.userId(), Sector.valueOf(reservation.sector()), reservation.electricBoxNum());
-        return ResponseEntity.ok(new ReservationResponseDto(createdReservation.getId(),
+        return ResponseEntity.status(201).body(new ReservationResponseDto(createdReservation.getId(),
                 createdReservation.getUserId(),
                 createdReservation.getSector().toString(),
                 createdReservation.getElectricBoxNum()));
@@ -27,12 +27,13 @@ class ReservationController {
 
     @PostMapping("/accommodation")
     public ResponseEntity<AccommodationCreationDto> createAccommodation(@RequestBody AccommodationCreationDto accommodation) {
-        return ResponseEntity.ok(reservationService.addAccommodation(accommodation));
+        return ResponseEntity.status(201)
+                .body(reservationService.addAccommodation(accommodation));
     }
 
     @PostMapping("/departure")
     public ResponseEntity<AccommodationCreationDto> depart(@RequestBody AccommodationDepartedDto accommodationDepartedDto) {
-        return ResponseEntity.ok(reservationService
+        return ResponseEntity.status(200).body(reservationService
                 .finishAccommodationAndCreateNextOne(accommodationDepartedDto));
     }
 

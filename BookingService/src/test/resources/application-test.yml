@@ -1,5 +1,12 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testr
+    url: jdbc:h2:mem:test
     username: sa
     password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+  kafka:
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer

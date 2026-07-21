@@ -1,6 +1,6 @@
 package pl.sadowski.bookingservice.reservation;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-interface AccommodationRepository extends CrudRepository<Accommodation, String> {
+interface AccommodationRepository extends JpaRepository<Accommodation, String> {
 }
