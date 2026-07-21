@@ -4,15 +4,21 @@ spring:
   kafka:
     admin:
       auto-create: true
-    bootstrap-servers: kafka:29092
+    bootstrap-servers: localhost:9092
     producer:
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        enable.idempotence: true
+      acks: all
+      retries: 3
+    properties:
+      schema.registry.url: http://localhost:8091
+      specific.avro.reader: true
   datasource:
-    url: jdbc:postgresql://postgres:5432/mydb
-    username: user
-    password: password
+    url: jdbc:postgresql://localhost:5432/mydb
+    username:
+    password:
   jpa:
     hibernate:
-      ddl-auto: update
-
+      ddl-auto: validate
