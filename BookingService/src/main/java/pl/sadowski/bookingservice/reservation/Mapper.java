@@ -1,13 +1,13 @@
 package pl.sadowski.bookingservice.reservation;
 
 import lombok.experimental.UtilityClass;
-import pl.sadowski.bookingservice.reservation.view.AccommodationCreationDto;
+import pl.sadowski.bookingservice.reservation.view.AccommodationCreatedDto;
 
 @UtilityClass
 class Mapper {
 
-    AccommodationCreationDto mapToDto(Accommodation accommodation) {
-        return new AccommodationCreationDto(accommodation.getReservation().getId(),
+    AccommodationCreatedDto mapToDto(Accommodation accommodation) {
+        return new AccommodationCreatedDto(accommodation.getReservation().getId(),
                 accommodation.getId(),
                 accommodation.getType(),
                 accommodation.getDescription(),

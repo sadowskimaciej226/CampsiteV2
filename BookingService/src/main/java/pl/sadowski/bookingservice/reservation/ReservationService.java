@@ -3,20 +3,18 @@ package pl.sadowski.bookingservice.reservation;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import pl.sadowski.bookingservice.reservation.exceptions.AccommodationNotFoundException;
 import pl.sadowski.bookingservice.reservation.exceptions.ReservationNotFoundException;
+import pl.sadowski.bookingservice.reservation.view.AccommodationCreatedDto;
 import pl.sadowski.bookingservice.reservation.view.AccommodationCreationDto;
 import pl.sadowski.bookingservice.reservation.view.AccommodationDepartedDto;
 import pl.sadowski.sdk.avro.AccommodationEvent;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 import static pl.sadowski.utils.Topics.RESERVATIONS_TOPIC;
 
@@ -37,12 +35,22 @@ class ReservationService {
     }
 
     @Transactional
-    public AccommodationCreationDto addAccommodation(AccommodationCreationDto dto) {
+    public AccommodationCreatedDto addAccommodation(@Validated AccommodationCreationDto dto) {
         Reservation reservation = reservationRepository.findById(dto.reservationId())
                 .orElseThrow(() -> new ReservationNotFoundException("Reservation not found: " + dto.reservationId()));
-        Accommodation accommodation = createAccommodation(dto, reservation);
-        accommodationRepository.save(accommodation);
-        return Mapper.mapToDto(accommodation);
+        Accommodation accommodation = new Accommodation(
+                dto.type(),
+                dto.description(),
+                dto.arrivedAt(),
+                dto.amount(),
+                reservation
+        );
+        Accommodation savedAccommodation = accommodationRepository.save(accommodation);
+        AccommodationEvent accommodationCreatedEvent
+                = EventBuilder.buildAccommodationEvent(savedAccommodation, reservation);
+
+        kafkaTemplate.send(RESERVATIONS_TOPIC, dto.reservationId(), accommodationCreatedEvent);
+        return Mapper.mapToDto(savedAccommodation);
     }
 
 
@@ -52,54 +60,36 @@ class ReservationService {
      * 0 people in accommodation.
     */
     @Transactional
-    public AccommodationCreationDto finishAccommodationAndCreateNextOne(@Validated AccommodationDepartedDto depart) {
+    public AccommodationCreatedDto finishAccommodationAndCreateNextOne(@Validated AccommodationDepartedDto depart) {
         Reservation reservation = reservationRepository.findById(depart.reservationId())
                 .orElseThrow(() -> new ReservationNotFoundException("Reservation not found: " + depart.reservationId()));
-        Accommodation accommodation =
+        Accommodation accommodationToEnd =
                 accommodationRepository.findById(depart.accommodationId())
                 .orElseThrow(() -> new AccommodationNotFoundException("Accommodation not found: " + depart.accommodationId()));
 
-        Accommodation nextAccommodation = reservation.finishAccommodation(accommodation, depart.departureTime(),
-                depart.amount(), accommodation.getType(), depart.newAccommodationDescription());
+        Accommodation newAccommodation = reservation.finishAccommodation(accommodationToEnd, depart.departureTime(),
+                depart.amount(), accommodationToEnd.getType(), depart.newAccommodationDescription());
 
-        if (nextAccommodation.getAmount() > 0) {
-            accommodationRepository.save(nextAccommodation);
-            sendAccommodationCreatedEvent(depart, nextAccommodation, reservation);
+        if (newAccommodation.getAmount() > 0) {
+            accommodationRepository.save(newAccommodation);
+            sendAccommodationCreatedEvent(depart.reservationId(), newAccommodation, reservation);
         }
 
         AccommodationEvent accommodationDepartedEvent = EventBuilder
-                .buildAccommodationEvent(accommodation, reservation);
+                .buildAccommodationEvent(accommodationToEnd, reservation);
         kafkaTemplate.send(RESERVATIONS_TOPIC, depart.reservationId(), accommodationDepartedEvent);
 
-        return Mapper.mapToDto(nextAccommodation);
+        return Mapper.mapToDto(newAccommodation);
     }
 
-    private void sendAccommodationCreatedEvent(AccommodationDepartedDto depart, Accommodation accommodation, Reservation reservation) {
-        AccommodationCreationDto accommodationCreationDto = getAccommodationCreationDto(depart, accommodation, reservation);
-
+    private void sendAccommodationCreatedEvent(String reservationId, Accommodation accommodation, Reservation reservation) {
         AccommodationEvent accommodationCreatedEvent
-                = EventBuilder.buildAccommodationEvent(accommodationCreationDto, reservation);
-
-        kafkaTemplate.send(RESERVATIONS_TOPIC, accommodationCreationDto.reservationId(), accommodationCreatedEvent);
+                = EventBuilder.buildAccommodationEvent(accommodation, reservation);
+        kafkaTemplate.send(RESERVATIONS_TOPIC, reservation.getId(), accommodationCreatedEvent);
     }
-
-    private static @NonNull AccommodationCreationDto getAccommodationCreationDto(AccommodationDepartedDto depart,
-                                                                                 Accommodation accommodation,
-                                                                                 Reservation reservation) {
-        return new AccommodationCreationDto(depart.reservationId(),
-                        accommodation.getId(),
-                        accommodation.getType(),
-                        depart.newAccommodationDescription(),
-                        LocalDate.now(),
-                        null,
-                        depart.amount(),
-                        reservation.getUserId());
-    }
-
 
     private Accommodation createAccommodation(AccommodationCreationDto dto, Reservation reservation) {
         Accommodation accommodation = new Accommodation(
-                UUID.randomUUID().toString(),
                 dto.type(),
                 dto.description(),
                 dto.arrivedAt(),
@@ -108,7 +98,7 @@ class ReservationService {
         );
 
         AccommodationEvent accommodationCreatedEvent
-                = EventBuilder.buildAccommodationEvent(dto, reservation);
+                = EventBuilder.buildAccommodationEvent(accommodation, reservation);
 
         kafkaTemplate.send(RESERVATIONS_TOPIC, dto.reservationId(), accommodationCreatedEvent);
         return accommodation;

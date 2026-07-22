@@ -6,14 +6,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 import pl.sadowski.bookingservice.reservation.exceptions.AccommodationNotFoundException;
 import pl.sadowski.bookingservice.reservation.exceptions.ReservationNotFoundException;
-import pl.sadowski.bookingservice.reservation.view.AccommodationCreationDto;
 import pl.sadowski.bookingservice.reservation.view.AccommodationDepartedDto;
-import pl.sadowski.bookingservice.reservation.view.AccommodationType;
 import pl.sadowski.sdk.avro.AccommodationEvent;
 
 import java.time.LocalDate;
@@ -23,6 +20,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
+import static pl.sadowski.bookingservice.reservation.TestObjectCreator.*;
 
 @ExtendWith(MockitoExtension.class)
 class ReservationServiceTest {
@@ -51,8 +49,7 @@ class ReservationServiceTest {
     @Test
     void addAccommodationShouldThrowExceptionWhenReservationNotFound() {
         //given
-        var accommodationCreationDto = new AccommodationCreationDto("id", "accommodationId",
-                AccommodationType.BIKE, "description", LocalDate.now(), LocalDate.now().plusDays(1), 1, "clientId");
+        var accommodationCreationDto = createAccommodationCreationDto("reservationId");
         //when
         when(reservationRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.empty());
         //then
@@ -64,11 +61,11 @@ class ReservationServiceTest {
     @Test
     void addAccommodationShouldSendEventAndSaveAccommodationWhenReservationIsFound() {
         //given
-        var accommodationCreationDto = new AccommodationCreationDto("id", "accommodationId",
-                AccommodationType.BIKE, "description", LocalDate.now(), LocalDate.now().plusDays(1), 1, "clientId");
+        var accommodationCreationDto = createAccommodationCreationDto("reservationId");
         Reservation reservation = new Reservation("userId", Sector.A, 1);
         //when
         when(reservationRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(reservation));
+        when(accommodationRepository.save(ArgumentMatchers.any())).thenReturn(createAccommodation(reservation));
         reservationService.addAccommodation(accommodationCreationDto);
         //then
         verify(accommodationRepository,
@@ -110,13 +107,10 @@ class ReservationServiceTest {
     @Test
     void finishAccommodationShouldCloseOneAccommodationAndCreateNextOneAndCreateAnotherWhenAllDataAreValid() {
         //given
-        var accommodationDepartedDto
-                = new AccommodationDepartedDto("reservationId", "accommodationId",
-                LocalDate.now().plusDays(1), 1, "clientId",
-                "newAccommodationDescription");
         var reservation = new Reservation("reservationId", "userId", Sector.A, 1, true);
-        Accommodation accommodation = new Accommodation("accommodationId", AccommodationType.CAR,
-                "description", LocalDate.now(), 2, reservation);
+        Accommodation accommodation = createAccommodation(reservation);
+        var accommodationDepartedDto
+                = createAccommodationDepartedDto(reservation, accommodation, 1);
         //when
         when(accommodationRepository.findById("accommodationId"))
                 .thenReturn(Optional.of(accommodation));
@@ -129,13 +123,16 @@ class ReservationServiceTest {
                 .send(ArgumentMatchers.any(), ArgumentMatchers.any(), accommodationEventCaptor.capture());
 
         var events = accommodationEventCaptor.getAllValues();
+
         AccommodationEvent departedEvent = events.getLast();
-        assertThat(departedEvent.getAccommodationId(), equalTo("accommodationId"));
         assertThat(departedEvent.getAmount(), equalTo(2));
+        assertThat(departedEvent.getDepartedAt(), is(notNullValue()));
         assertThat(departedEvent.getReservationId(), equalTo("reservationId"));
+
         AccommodationEvent newAccommodation = events.getFirst();
-        assertThat(newAccommodation.getAccommodationId(), not(equalTo("accommodationId")));
         assertThat(newAccommodation.getAmount(), equalTo(1));
+        assertThat(newAccommodation.getDepartedAt(), is(nullValue()));
+        assertThat(newAccommodation.getArrivedAt(), equalTo(departedEvent.getDepartedAt()));
     }
 
 }

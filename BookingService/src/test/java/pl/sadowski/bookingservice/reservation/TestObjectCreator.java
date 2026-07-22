@@ -18,8 +18,8 @@ class TestObjectCreator {
                 .build();
     }
 
-    static @NonNull AccommodationCreationDto createAccommodationCreationDto(String reservationId, String accommodationId) {
-        return new AccommodationCreationDto(reservationId, accommodationId,
+    static @NonNull AccommodationCreationDto createAccommodationCreationDto(String reservationId) {
+        return new AccommodationCreationDto(reservationId,
                 AccommodationType.CAR, "description", LocalDate.of(2026, 5, 10),
                 LocalDate.of(2026, 5, 11), 1, "clientId");
     }

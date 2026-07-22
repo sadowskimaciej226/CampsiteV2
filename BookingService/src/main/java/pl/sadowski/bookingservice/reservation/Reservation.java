@@ -7,7 +7,6 @@ import pl.sadowski.bookingservice.reservation.view.AccommodationType;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -44,7 +43,7 @@ class Reservation {
 
         int remaining = accommodationToFinish.getAmount() - amount;
 
-        Accommodation next = new Accommodation(null, nextType, nextDescription, departureTime, remaining, this);
+        Accommodation next = new Accommodation(nextType, nextDescription, departureTime, remaining, this);
 
         this.accommodations.add(next);
 

@@ -1,9 +1,10 @@
 package pl.sadowski.bookingservice.reservation;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import pl.sadowski.bookingservice.reservation.view.AccommodationCreationDto;
+import pl.sadowski.bookingservice.reservation.view.AccommodationCreatedDto;
 import pl.sadowski.bookingservice.reservation.view.ReservationRequestDto;
 import pl.sadowski.bookingservice.reservation.view.ReservationResponseDto;
 import pl.sadowski.bookingservice.setup.BaseIntegrationTest;
@@ -24,11 +25,11 @@ class ReservationIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private AccommodationRepository accommodationRepository;
 
-//    @BeforeEach
-//    void setUp() {
-//        accommodationRepository.deleteAll();
-//        reservationRepository.deleteAll();
-//    }
+    @BeforeEach
+    void setUp() {
+        accommodationRepository.deleteAll();
+        reservationRepository.deleteAll();
+    }
 
     @Test
     void createReservation_shouldCreateReservation_whenAllDataAreValid() throws Exception {
@@ -49,26 +50,25 @@ class ReservationIntegrationTest extends BaseIntegrationTest {
         assertThat(reservationResponseDto.sector(), equalTo("A"));
     }
 
-    //TODO to fix
     @Test
     void createAccommodation_shouldCreateAccommodation_whenReservationIsCreated() throws Exception {
         //given
         Reservation reservation = reservationRepository.save(createReservation());
-        var accommodationCreationDto = createAccommodationCreationDto(reservation.getId(), "accommodationId");
+        var accommodationCreationDto = createAccommodationCreationDto(reservation.getId());
         //when
-        AccommodationCreationDto accommodationResponse =
+        AccommodationCreatedDto accommodationResponse =
                 objectMapper.readValue(mockMvc.perform(post("/reservation/accommodation")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(accommodationCreationDto)))
                 .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
-                .getContentAsString(), AccommodationCreationDto.class);
+                .getContentAsString(), AccommodationCreatedDto.class);
         //then
         List<Accommodation> all = accommodationRepository.findAll();
-        assertThat(all.iterator().hasNext(), equalTo(true));
-        Accommodation next = all.iterator().next();
-        assertThat(next.getReservation(), equalTo(reservation));
+        assertThat(all, hasSize(1));
+        Accommodation first = all.getFirst();
+        assertThat(first.getReservation().getId(), equalTo(reservation.getId()));
     }
 
     @Test
@@ -91,9 +91,7 @@ class ReservationIntegrationTest extends BaseIntegrationTest {
         assertThat(newAccommodation.getAmount(), equalTo(1));
         assertThat(newAccommodation.getType(), equalTo(oldAccommodation.getType()));
         assertThat(newAccommodation.getDescription(), equalTo("newAccommodationDescription"));
-
     }
-
 
 
 }

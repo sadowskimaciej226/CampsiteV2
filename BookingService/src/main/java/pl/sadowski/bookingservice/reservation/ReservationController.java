@@ -1,12 +1,13 @@
 package pl.sadowski.bookingservice.reservation;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import pl.sadowski.bookingservice.reservation.view.AccommodationCreationDto;
-import pl.sadowski.bookingservice.reservation.view.AccommodationDepartedDto;
-import pl.sadowski.bookingservice.reservation.view.ReservationRequestDto;
-import pl.sadowski.bookingservice.reservation.view.ReservationResponseDto;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import pl.sadowski.bookingservice.reservation.view.*;
 
 @RestController()
 @RequestMapping("/reservation")
@@ -16,7 +17,7 @@ class ReservationController {
     private final ReservationService reservationService;
 
     @PostMapping()
-    public ResponseEntity<ReservationResponseDto> createReservation(@RequestBody ReservationRequestDto reservation) {
+    public ResponseEntity<ReservationResponseDto> createReservation(@RequestBody @Valid ReservationRequestDto reservation) {
         Reservation createdReservation =
                 reservationService.createReservation(reservation.userId(), Sector.valueOf(reservation.sector()), reservation.electricBoxNum());
         return ResponseEntity.status(201).body(new ReservationResponseDto(createdReservation.getId(),
@@ -26,13 +27,13 @@ class ReservationController {
     }
 
     @PostMapping("/accommodation")
-    public ResponseEntity<AccommodationCreationDto> createAccommodation(@RequestBody AccommodationCreationDto accommodation) {
+    public ResponseEntity<AccommodationCreatedDto> createAccommodation(@RequestBody @Valid AccommodationCreationDto accommodation) {
         return ResponseEntity.status(201)
                 .body(reservationService.addAccommodation(accommodation));
     }
 
     @PostMapping("/departure")
-    public ResponseEntity<AccommodationCreationDto> depart(@RequestBody AccommodationDepartedDto accommodationDepartedDto) {
+    public ResponseEntity<AccommodationCreatedDto> depart(@RequestBody @Valid AccommodationDepartedDto accommodationDepartedDto) {
         return ResponseEntity.status(200).body(reservationService
                 .finishAccommodationAndCreateNextOne(accommodationDepartedDto));
     }

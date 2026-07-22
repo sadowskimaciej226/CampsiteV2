@@ -6,7 +6,8 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
-public record AccommodationCreationDto(@NotBlank String reservationId,
+public record AccommodationCreatedDto(@NotBlank String reservationId,
+                                       @NotBlank String accommodationId,
                                        @NotNull AccommodationType type,
                                        String description,
                                        @NotNull LocalDate arrivedAt,
