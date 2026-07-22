@@ -103,4 +103,34 @@ class PaymentProcessorTest {
         assertThrows(IllegalArgumentException.class,() -> paymentProcessor.calculatePayment(pricingRules, accommodationPayments));
     }
 
+    @Test
+    void calculatePaymentsShouldCalculatePaymentForMultipleAccommodations() {
+        //given
+        accommodationPayments =  List.of(
+                new AccommodationPayment("accommodationId1", "reservationId", "B", 2, "departed", Rule.TENT,
+                        false, LocalDate.of(2026, 6, 29), LocalDate.of(2026, 6, 30), false),
+                new AccommodationPayment("accommodationId2", "reservationId", "B", 1, "departed", Rule.TENT,
+                        false, LocalDate.of(2026, 6, 30), LocalDate.of(2026, 7, 1), false));
+        pricingRules = getPricingRules();
+        //when
+        ReservationPaymentReport reservationPaymentReport = paymentProcessor.calculatePayment(pricingRules, accommodationPayments);
+        //then
+        // 10 * 2 * 1 + 20 * 1= 40
+        assertThat(reservationPaymentReport.getTotalCost(), equalTo(BigDecimal.valueOf(40)));
+        List<AccommodationReport> accommodationReports = reservationPaymentReport.getAccommodationReports();
+        assertThat(accommodationReports, hasSize(2));
+    }
+
+    @Test
+    void calculatePaymentShouldThrowExceptionWhenThereIsNoNightSpentOnCamping() {
+        //given
+        accommodationPayments =  List.of(
+                new AccommodationPayment("accommodationId", "reservationId", "B", 1, "departed", Rule.TENT,
+                        true, LocalDate.of(2026, 6, 28), LocalDate.of(2026, 6, 28), false));
+        pricingRules = getPricingRules();
+        //when
+        //then
+        assertThrows(IllegalArgumentException.class,() -> paymentProcessor.calculatePayment(pricingRules, accommodationPayments));
+    }
+
 }

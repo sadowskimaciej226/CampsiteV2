@@ -53,7 +53,7 @@ class PaymentProcessor {
                     .orElseThrow(() -> new IllegalArgumentException("No pricing rule found for accommodation: "
                             + accommodation.getAccommodationId()));
 
-            LocalDate periodEnd = departureDate.isBefore(applicableRule.getValidTo())
+            LocalDate periodEnd = departureDate.isEqual(applicableRule.getValidTo()) || departureDate.isBefore(applicableRule.getValidTo())
                     ? departureDate
                     : applicableRule.getValidTo().plusDays(1);
 
